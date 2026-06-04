@@ -1,0 +1,29 @@
+{
+  "_comment": "Larger-workload config for the certified window-compiler. Goal: grow per-cell n_c into the hundreds so the certificate (PROOF_PACKAGE_WINDOW_CERT) becomes non-vacuous. Consumed by scripts/run_larger_workload.sh.",
+  "datasets": [
+    {"name": "scifact",   "max_queries": 300,  "max_docs": 0},
+    {"name": "fiqa",      "max_queries": 648,  "max_docs": 0},
+    {"name": "nfcorpus",  "max_queries": 323,  "max_docs": 0}
+  ],
+  "_datasets_optional_when_downloaded": [
+    {"name": "scidocs",   "max_queries": 1000, "max_docs": 0},
+    {"name": "arguana",   "max_queries": 1406, "max_docs": 0}
+  ],
+  "selectivities": "1.0,0.5,0.1",
+  "budgets_ms": "40,80,120,160",
+  "seeds": "13,17,23,29,31",
+  "base_embedding_model": "intfloat/e5-base-v2",
+  "external_operators": [
+    {"operator": "qwen3_embedding_06b",                 "kind": "dense",   "model": "Qwen/Qwen3-Embedding-0.6B",                 "pooling": "last", "query_prefix": "query: ", "doc_prefix": "", "trust_remote_code": true},
+    {"operator": "splade_cocondenser_ensembledistil",   "kind": "splade",  "model": "naver/splade-cocondenser-ensembledistil",   "pooling": "mean", "query_prefix": "",        "doc_prefix": ""},
+    {"operator": "colbertv2",                            "kind": "colbert", "model": "colbert-ir/colbertv2.0",                    "pooling": "mean", "query_prefix": "",        "doc_prefix": ""}
+  ],
+  "gpu": {"device": 0, "vram_gb_min": 16, "est_runtime_hours": "2-5 (3 datasets x 3 external rankers), scales with corpus size"},
+  "output": {
+    "external_dir": "external_rankings_multi",
+    "per_dataset_dir": "results/larger_workload",
+    "merged_csv": "results/larger_workload/all_action_rows_multi.csv"
+  },
+  "smoke": {"max_queries": 20, "max_docs": 2000, "datasets": ["scifact"], "skip_external": true,
+            "_note": "CPU-only plumbing check: tiny subset, no GPU external rankers."}
+}

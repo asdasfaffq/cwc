@@ -1,0 +1,30 @@
+Copyright (c) 2026 The CWC Authors (Macao Polytechnic University).
+All rights reserved.
+
+Pre-publication academic license
+================================
+
+This repository accompanies a manuscript currently under peer review. It is a
+partial reference release made available for academic inspection, review, and
+verification of the results reported in the manuscript.
+
+Permitted, without prior written permission:
+  - Viewing and downloading the code for personal academic study.
+  - Running the code on the bundled sample or on public BEIR data to verify the
+    method and the reported behaviour.
+
+Not permitted without prior written permission from the corresponding author:
+  - Redistribution of this code or substantial portions of it.
+  - Creation or publication of derivative works.
+  - Any commercial use.
+  - Use of this code or method in a publication without citing the accompanying
+    paper.
+
+This license will be replaced by a standard open-source license (to be chosen by
+the authors) when the accompanying paper is published.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

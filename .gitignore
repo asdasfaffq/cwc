@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Heavy / withheld artifacts (do not commit)
+data/*
+!data/sample/
+results/
+external_rankings*/
+figures/
+*.pdf
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

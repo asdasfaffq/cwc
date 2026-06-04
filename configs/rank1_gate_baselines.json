@@ -1,0 +1,71 @@
+{
+  "candidate": "ParetoProbe-C",
+  "minimum_required_baselines": 6,
+  "sota_performance_baselines": [
+    {
+      "id": "qwen3_embedding_reranker",
+      "name": "Qwen3-Embedding + Qwen3-Reranker",
+      "year": 2025,
+      "role": "frontier embedding/reranking baseline",
+      "source": "https://arxiv.org/abs/2506.05176"
+    },
+    {
+      "id": "nv_embed_v2",
+      "name": "NV-Embed-v2 / NV-Retriever family",
+      "year": 2024,
+      "role": "leaderboard-scale LLM embedding baseline",
+      "source": "https://arxiv.org/abs/2405.17428"
+    },
+    {
+      "id": "bge_m3_hybrid",
+      "name": "BGE-M3 dense+sparse+multi-vector hybrid",
+      "year": 2024,
+      "role": "hybrid retrieval SOTA-family baseline",
+      "source": "https://arxiv.org/abs/2402.03216"
+    }
+  ],
+  "recent_hot_baselines": [
+    {
+      "id": "mistral_splade",
+      "name": "Mistral-SPLADE / Echo-Mistral-SPLADE",
+      "year": 2024,
+      "role": "recent learned sparse retrieval baseline",
+      "source": "https://arxiv.org/abs/2408.11119"
+    },
+    {
+      "id": "rankzephyr_rankllm",
+      "name": "RankZephyr / RankLLM listwise reranking",
+      "year": 2023,
+      "role": "recent LLM reranking baseline",
+      "source": "https://arxiv.org/abs/2312.02724"
+    },
+    {
+      "id": "corag_mcts",
+      "name": "CORAG cost-constrained retrieval optimization",
+      "year": 2024,
+      "role": "closest cost-constrained retrieval optimizer",
+      "source": "https://arxiv.org/abs/2411.00744"
+    }
+  ],
+  "extra_stress_baselines": [
+    {
+      "id": "adaptive_routing",
+      "name": "ModaRoute/SymRAG-style adaptive routing",
+      "year": 2025,
+      "role": "recent adaptive routing stress baseline",
+      "sources": [
+        "https://arxiv.org/abs/2507.13374",
+        "https://arxiv.org/abs/2506.12981"
+      ]
+    }
+  ],
+  "rank_gate": {
+    "primary_unit": "dataset × latency_budget × selectivity_bucket × seed",
+    "primary_score": "constrained utility or feasible nDCG/Recall under latency constraint",
+    "required_average_rank": 1,
+    "pairwise_test": "one-sided Wilcoxon signed-rank on per-block ranks",
+    "multiple_testing": "Holm correction",
+    "alpha": 0.05,
+    "failure_rule": "If ParetoProbe-C is not statistically rank #1 against all six required baselines, do not claim SOTA and do not proceed to paper writing."
+  }
+}
