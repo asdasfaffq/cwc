@@ -1,2 +1,41 @@
 [stack] queries=nfcorpus (200), collection=100785 docs (+['arguana', 'fiqa', 'scidocs', 'scifact']), device=cuda
 [A] measuring plan latency/quality (real execution)
+    100/800 items (18s)
+    200/800 items (35s)
+    300/800 items (52s)
+    400/800 items (70s)
+    500/800 items (88s)
+    600/800 items (106s)
+    700/800 items (124s)
+    800/800 items (141s)
+[A] mean plan latency (ms): {"bm25_pre": 0.94, "bm25_post": 1.15, "dense_pre": 24.5, "dense_post": 0.39, "rrf_pre": 25.34, "rrf_post": 1.66, "rerank20_pre": 45.82, "rerank50_pre": 73.5}
+[A] mean plan nDCG@10   : {"bm25_pre": 0.1127, "bm25_post": 0.1105, "dense_pre": 0.1293, "dense_post": 0.1224, "rrf_pre": 0.1323, "rrf_post": 0.1311, "rerank20_pre": 0.1387, "rerank50_pre": 0.1435}
+[A] s=1.0: bm25_pre=1.26ms/0.214  bm25_post=1.15ms/0.214  dense_pre=0.45ms/0.237  dense_post=0.31ms/0.237  rrf_pre=1.64ms/0.240  rrf_post=1.52ms/0.240  rerank20_pre=21.55ms/0.248  rerank50_pre=48.37ms/0.258
+[A] s=0.5: bm25_pre=1.17ms/0.147  bm25_post=1.15ms/0.147  dense_pre=1.59ms/0.169  dense_post=0.36ms/0.162  rrf_pre=2.70ms/0.179  rrf_post=1.59ms/0.178  rerank20_pre=22.48ms/0.190  rerank50_pre=49.69ms/0.197
+[A] s=0.1: bm25_pre=0.69ms/0.065  bm25_post=1.15ms/0.064  dense_pre=20.22ms/0.082  dense_post=0.43ms/0.071  rrf_pre=20.82ms/0.080  rrf_post=1.76ms/0.083  rerank20_pre=40.97ms/0.085  rerank50_pre=69.10ms/0.086
+[A] s=0.02: bm25_pre=0.65ms/0.025  bm25_post=1.15ms/0.017  dense_pre=75.72ms/0.029  dense_post=0.45ms/0.021  rrf_pre=76.22ms/0.030  rrf_post=1.77ms/0.024  rerank20_pre=98.28ms/0.031  rerank50_pre=126.82ms/0.035
+[A] probe p95=4.62 ms -> SLO grid [10.0, 25.0, 50.0, 100.0] ms
+[C] open-loop Poisson load test (real execution behind a single-server queue)
+[C] mean service ms: {'CWC': 47.15, 'StaticBest-cal': 55.6, 'CostGreedy-cal': 55.11, 'Static-BestQuality': 81.84} -> capacities [12.2, 18.0, 18.1, 21.2] qps, reference (median) 18.1 qps
+  [C] rho=0.5 CWC                  p95=   175.5 p99=   219.7 viol=0.383 goodput=8.7
+  [C] rho=0.5 StaticBest-cal       p95=   226.2 p99=   288.5 viol=0.508 goodput=8.7
+  [C] rho=0.5 CostGreedy-cal       p95=   230.5 p99=   297.2 viol=0.504 goodput=8.7
+  [C] rho=0.5 Static-BestQuality   p95=   501.3 p99=   727.3 viol=0.792 goodput=8.7
+  [C] rho=0.75 CWC                  p95=   219.3 p99=   264.1 viol=0.508 goodput=13.0
+  [C] rho=0.75 StaticBest-cal       p95=   449.8 p99=   594.4 viol=0.650 goodput=13.0
+  [C] rho=0.75 CostGreedy-cal       p95=   470.7 p99=   619.7 viol=0.679 goodput=13.0
+  [C] rho=0.75 Static-BestQuality   p95=  1811.6 p99=  1882.7 viol=0.992 goodput=12.2
+  [C] rho=1.0 CWC                  p95=   429.4 p99=   514.8 viol=0.696 goodput=17.1
+  [C] rho=1.0 StaticBest-cal       p95=  1073.8 p99=  1135.4 viol=0.942 goodput=17.0
+  [C] rho=1.0 CostGreedy-cal       p95=  1010.9 p99=  1062.8 viol=0.883 goodput=17.1
+  [C] rho=1.0 Static-BestQuality   p95=  5476.2 p99=  5667.7 viol=0.996 goodput=12.3
+{
+  "budgets_ms": [
+    10.0,
+    25.0,
+    50.0,
+    100.0
+  ],
+  "telemetry_probe_ms_mean": 2.3808078531874344,
+  "reference_capacity_qps": 18.065529001044652
+}

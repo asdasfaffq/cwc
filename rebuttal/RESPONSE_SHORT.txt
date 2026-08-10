@@ -37,6 +37,11 @@ cuts the realized violation rate of the strongest calibrated static plan by 30x 
 the paper reports from cached rows, now obtained by executing every plan. Honest boundary,
 which we state rather than average away: at 10-25 ms SLOs a single cheap plan is optimal for
 every cell, so CWC's probe is pure overhead (0.0953 vs 0.0957 nDCG at half the throughput).
+Open-loop (Poisson arrivals into a queue that executes every request for real, SLO scored on
+response time): measured saturation capacity is CWC 21.2 qps vs 18.0 for the strongest
+calibrated static plan and 12.2 for the best-quality one, and CWC holds the best tail at every
+offered load with the margin widening -- response p95 175 vs 226 ms at 9.05 qps, 219 vs 450 ms
+at 13.6 qps, and 429 vs 1074 ms at 18.1 qps (violations 0.696 vs 0.942).
 
 PROSPECTIVE ADMISSION (R2-W2/D2). Redone so the admission DECISION uses only compile-time
 information and only the payoff is settled afterwards. We also removed a confound: the

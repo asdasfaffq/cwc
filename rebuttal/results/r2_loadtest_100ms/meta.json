@@ -1,0 +1,196 @@
+{
+  "dataset": "nfcorpus",
+  "n_docs": 100785,
+  "n_queries": 200,
+  "n_items": 800,
+  "device": "cuda",
+  "plans": [
+    "bm25_pre",
+    "bm25_post",
+    "dense_pre",
+    "dense_post",
+    "rrf_pre",
+    "rrf_post",
+    "rerank20_pre",
+    "rerank50_pre"
+  ],
+  "budgets_ms": [
+    10.0,
+    25.0,
+    50.0,
+    100.0
+  ],
+  "index_build_s": {
+    "doc_embed": 187.8,
+    "hnsw": 23.2,
+    "bm25": 6.7
+  },
+  "mean_plan_latency_ms": {
+    "bm25_pre": 0.9421494643902406,
+    "bm25_post": 1.149025705526583,
+    "dense_pre": 24.496465166157577,
+    "dense_post": 0.3876373209641315,
+    "rrf_pre": 25.34491831844207,
+    "rrf_post": 1.6620705771492794,
+    "rerank20_pre": 45.82056628016289,
+    "rerank50_pre": 73.4972358532832
+  },
+  "mean_plan_ndcg10": {
+    "bm25_pre": 0.11266248076654611,
+    "bm25_post": 0.11053798404677988,
+    "dense_pre": 0.12934918182735006,
+    "dense_post": 0.12239159909315671,
+    "rrf_pre": 0.13233989133517043,
+    "rrf_post": 0.1311433343167924,
+    "rerank20_pre": 0.13869714017389673,
+    "rerank50_pre": 0.1435372677501887
+  },
+  "per_selectivity_profile": {
+    "1.0": {
+      "bm25_pre": {
+        "lat_ms": 1.262,
+        "ndcg10": 0.2144
+      },
+      "bm25_post": {
+        "lat_ms": 1.152,
+        "ndcg10": 0.2144
+      },
+      "dense_pre": {
+        "lat_ms": 0.452,
+        "ndcg10": 0.2366
+      },
+      "dense_post": {
+        "lat_ms": 0.311,
+        "ndcg10": 0.2366
+      },
+      "rrf_pre": {
+        "lat_ms": 1.638,
+        "ndcg10": 0.2398
+      },
+      "rrf_post": {
+        "lat_ms": 1.521,
+        "ndcg10": 0.2398
+      },
+      "rerank20_pre": {
+        "lat_ms": 21.549,
+        "ndcg10": 0.2481
+      },
+      "rerank50_pre": {
+        "lat_ms": 48.369,
+        "ndcg10": 0.2575
+      }
+    },
+    "0.5": {
+      "bm25_pre": {
+        "lat_ms": 1.167,
+        "ndcg10": 0.1469
+      },
+      "bm25_post": {
+        "lat_ms": 1.149,
+        "ndcg10": 0.1469
+      },
+      "dense_pre": {
+        "lat_ms": 1.59,
+        "ndcg10": 0.1691
+      },
+      "dense_post": {
+        "lat_ms": 0.36,
+        "ndcg10": 0.1617
+      },
+      "rrf_pre": {
+        "lat_ms": 2.697,
+        "ndcg10": 0.1794
+      },
+      "rrf_post": {
+        "lat_ms": 1.595,
+        "ndcg10": 0.1777
+      },
+      "rerank20_pre": {
+        "lat_ms": 22.484,
+        "ndcg10": 0.1903
+      },
+      "rerank50_pre": {
+        "lat_ms": 49.692,
+        "ndcg10": 0.1965
+      }
+    },
+    "0.1": {
+      "bm25_pre": {
+        "lat_ms": 0.693,
+        "ndcg10": 0.0647
+      },
+      "bm25_post": {
+        "lat_ms": 1.148,
+        "ndcg10": 0.0635
+      },
+      "dense_pre": {
+        "lat_ms": 20.22,
+        "ndcg10": 0.0823
+      },
+      "dense_post": {
+        "lat_ms": 0.431,
+        "ndcg10": 0.0706
+      },
+      "rrf_pre": {
+        "lat_ms": 20.823,
+        "ndcg10": 0.0796
+      },
+      "rrf_post": {
+        "lat_ms": 1.76,
+        "ndcg10": 0.0827
+      },
+      "rerank20_pre": {
+        "lat_ms": 40.973,
+        "ndcg10": 0.0852
+      },
+      "rerank50_pre": {
+        "lat_ms": 69.104,
+        "ndcg10": 0.0856
+      }
+    },
+    "0.02": {
+      "bm25_pre": {
+        "lat_ms": 0.646,
+        "ndcg10": 0.0246
+      },
+      "bm25_post": {
+        "lat_ms": 1.147,
+        "ndcg10": 0.0173
+      },
+      "dense_pre": {
+        "lat_ms": 75.724,
+        "ndcg10": 0.0294
+      },
+      "dense_post": {
+        "lat_ms": 0.448,
+        "ndcg10": 0.0207
+      },
+      "rrf_pre": {
+        "lat_ms": 76.222,
+        "ndcg10": 0.0305
+      },
+      "rrf_post": {
+        "lat_ms": 1.772,
+        "ndcg10": 0.0244
+      },
+      "rerank20_pre": {
+        "lat_ms": 98.276,
+        "ndcg10": 0.0312
+      },
+      "rerank50_pre": {
+        "lat_ms": 126.824,
+        "ndcg10": 0.0346
+      }
+    }
+  },
+  "telemetry_probe_ms_mean": 2.3808078531874344,
+  "telemetry_probe_ms_p95": 4.6162388869561255,
+  "mean_service_ms_open_loop": {
+    "CWC": 47.148578317137435,
+    "StaticBest-cal": 55.601063289213926,
+    "CostGreedy-cal": 55.109200302589066,
+    "Static-BestQuality": 81.83734742730546
+  },
+  "reference_capacity_qps": 18.065529001044652,
+  "cwc_deployments": []
+}

@@ -285,8 +285,32 @@ cached-row study, obtained here by executing every plan. On the smaller NFCorpus
 the same mechanism appears as **3.6× throughput at equal-or-better quality** (137.8 vs
 38.4 qps, nDCG 0.1352 vs 0.1335 at that stack's 58.8 ms SLO).
 
+**Under load.** We also drive the same stack open-loop, with Poisson arrivals into a
+single-server queue that executes every request for real, and score the SLO against the
+*response* time (queue wait + service) rather than service time alone. Measured saturation
+capacities at the 100 ms SLO are **CWC 21.2 qps**, CostGreedy-cal 18.1, StaticBest-cal 18.0,
+Static-BestQuality 12.2 — CWC sustains the highest arrival rate of the four because routing
+sends the expensive constrained-ANN and rerank plans only to the cells that need them.
+Response-time tails at three offered loads (0.5×, 0.75× and 1.0× the median policy capacity,
+i.e. 9.05, 13.6 and 18.1 qps):
+
+| Policy | p95 @ 9.05 | viol | p95 @ 13.6 | viol | p95 @ 18.1 | viol |
+|---|---|---|---|---|---|---|
+| **CWC** | **175 ms** | **0.383** | **219 ms** | **0.508** | **429 ms** | **0.696** |
+| StaticBest-cal | 226 ms | 0.508 | 450 ms | 0.650 | 1074 ms | 0.942 |
+| CostGreedy-cal | 231 ms | 0.504 | 471 ms | 0.679 | 1011 ms | 0.883 |
+| Static-BestQuality | 501 ms | 0.792 | 1812 ms | 0.992 | — (saturated) | — |
+
+CWC keeps the best tail and the lowest violation rate here too, and the margin *widens* with
+load: its response p95 is 22% below the strongest calibrated static plan at the lightest load,
+51% below at the middle one, and **60% below at the heaviest** (429 ms vs 1074 ms), with SLO
+violations 0.696 vs 0.942. The absolute violation rates are high for *every* policy because
+queueing delay is added to a service-time distribution that is itself heavy-tailed at low
+selectivity; that is a property of the workload, not of the selector, and it is the reason an
+operator wants an admission rule rather than only a fast plan.
+
 We also report, plainly, where CWC does not pay. At 10–25 ms a single cheap plan is optimal
-for every cell, so CWC's telemetry probe (p95 4.7 ms on the 100k-document index) is pure
+for every cell, so CWC's telemetry probe (p95 4.6 ms on the 100k-document index) is pure
 overhead: 0.0953 vs 0.0957 nDCG at half the throughput. At 50 ms CWC buys +1.6% nDCG but
 introduces a 0.9% violation rate where the static plan had none. The routing layer earns its
 cost exactly when the plan frontier is cell-dependent — which is the regime the paper is about
