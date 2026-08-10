@@ -369,6 +369,10 @@ def main() -> None:
     ap.add_argument("--load-requests", type=int, default=300)
     ap.add_argument("--load-rhos", default="0.6,0.8,1.0")
     ap.add_argument("--n-budgets", type=int, default=5)
+    ap.add_argument("--budgets-ms", default="",
+                    help="explicit SLO grid in ms; overrides the quantile rule so a "
+                         "rerun uses the same grid even though measured latencies "
+                         "move slightly between runs")
     ap.add_argument("--output-dir", type=Path, default=Path("rebuttal/results/r2_end2end"))
     args = ap.parse_args()
     out = args.output_dir
@@ -419,9 +423,12 @@ def main() -> None:
     # meaningful operating point for *any* routing method, so it is out of scope rather
     # than a result).
     pooled = np.array([lat[(it, a)] for it in items for a in PLANS])
-    lo = max(float(np.percentile(pooled, 20)), 2.0 * pctl(probe_ms, 95))
-    hi = float(np.percentile(pooled, 95))
-    budgets = [round(float(x), 2) for x in np.geomspace(lo, hi, args.n_budgets)]
+    if args.budgets_ms.strip():
+        budgets = [float(x) for x in args.budgets_ms.split(",") if x.strip()]
+    else:
+        lo = max(float(np.percentile(pooled, 20)), 2.0 * pctl(probe_ms, 95))
+        hi = float(np.percentile(pooled, 95))
+        budgets = [round(float(x), 2) for x in np.geomspace(lo, hi, args.n_budgets)]
     print(f"[A] probe p95={pctl(probe_ms, 95):.2f} ms -> SLO grid {budgets} ms", flush=True)
 
     # ---------------- Phase B: closed-loop live replay of the eval window -------
@@ -536,9 +543,14 @@ def main() -> None:
                 st.execute(fixed, i, s)
             s_ms.append((now() - t) * 1e3)
         svc[pname] = float(np.mean(s_ms))
-    mu_min = 1000.0 / max(svc.values())  # capacity (qps) of the slowest policy
+    # Reference arrival rate: the median policy capacity. Anchoring on the slowest policy
+    # leaves every other policy idle and discriminates nothing; anchoring on CWC's own
+    # capacity would build in a bias. Every policy's own capacity is reported alongside.
+    caps = sorted(1000.0 / v for v in svc.values())
+    mu_min = float(np.median(caps))
     print("[C] mean service ms:", {k: round(v, 2) for k, v in svc.items()},
-          f"-> reference capacity {mu_min:.1f} qps", flush=True)
+          "-> capacities " + str(sorted(round(1000.0 / v, 1) for v in svc.values()))
+          + f" qps, reference (median) {mu_min:.1f} qps", flush=True)
 
     load_rows = []
     order = list(rng.permutation(len(ev)))
@@ -551,12 +563,16 @@ def main() -> None:
             done = []
 
             def producer():
+                # Sleep once to each absolute arrival instant. A spin-wait here contends with
+                # the server thread for the GIL and inflates every measured response time --
+                # a harness artifact rather than queueing.
                 t0 = now()
                 acc = 0.0
                 for gidx, item in enumerate(req):
                     acc += gaps[gidx]
-                    while now() - t0 < acc:
-                        time.sleep(0.0005)
+                    delay = t0 + acc - now()
+                    if delay > 0:
+                        time.sleep(delay)
                     q.put((item, now()))
                 q.put(None)
 

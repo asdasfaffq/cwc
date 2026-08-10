@@ -1,0 +1,66 @@
+{
+  "n_runs": 1,
+  "certificate_valid_in_all_runs": true,
+  "by_coarsening": [
+    {
+      "coarsening": "sel",
+      "gamma_obs_mean": 2.5199230042933887,
+      "gamma_obs_max": 4.67209162145871,
+      "gamma_plugin_mean": 3.330132316706946,
+      "R_cert_obs": 0.2094186399277045,
+      "realized": 0.0019267822736030828,
+      "valid_frac": 1.0,
+      "kappa_star": 2.650974723947312,
+      "plugin_dominates_frac": 0.0,
+      "unbounded_cells": 0.0,
+      "exch_mean_gap": 0.0008192146046755975,
+      "exch_max_abs_gap": 0.005319148936170213,
+      "runs": 1
+    },
+    {
+      "coarsening": "sel_x_lat2",
+      "gamma_obs_mean": 1.8120622597000813,
+      "gamma_obs_max": 2.6014254385964914,
+      "gamma_plugin_mean": 3.330132316706946,
+      "R_cert_obs": 0.47259275691609365,
+      "realized": 0.0019267822736030828,
+      "valid_frac": 1.0,
+      "kappa_star": 0.8538633774977797,
+      "plugin_dominates_frac": 1.0,
+      "unbounded_cells": 1.0,
+      "exch_mean_gap": 0.0011332971012710732,
+      "exch_max_abs_gap": 0.005847953216374269,
+      "runs": 1
+    },
+    {
+      "coarsening": "sel_x_lat4",
+      "gamma_obs_mean": 2.5796078182970157,
+      "gamma_obs_max": 4.162280701754386,
+      "gamma_plugin_mean": 3.330132316706946,
+      "R_cert_obs": 0.5008150939339548,
+      "realized": 0.0019267822736030828,
+      "valid_frac": 1.0,
+      "kappa_star": 0.9578693147449839,
+      "plugin_dominates_frac": 1.0,
+      "unbounded_cells": 1.0,
+      "exch_mean_gap": 0.001473447931965086,
+      "exch_max_abs_gap": 0.010309278350515464,
+      "runs": 1
+    },
+    {
+      "coarsening": "sel_x_lat4_x_bm25",
+      "gamma_obs_mean": 1.821269631100813,
+      "gamma_obs_max": 2.4339622641509435,
+      "gamma_plugin_mean": 3.330132316706946,
+      "R_cert_obs": 0.5044341676905137,
+      "realized": 0.0019267822736030828,
+      "valid_frac": 1.0,
+      "kappa_star": 1.0131967350212887,
+      "plugin_dominates_frac": 0.0,
+      "unbounded_cells": 2.0,
+      "exch_mean_gap": 0.00239858624609264,
+      "exch_max_abs_gap": 0.027777777777777776,
+      "runs": 1
+    }
+  ]
+}

@@ -51,9 +51,17 @@ Proposition 2 states that the deployed plan is fixed on the selection split. Tha
 genuine violation of Assumption 1(iii) in the *implementation*, and the stated certificate
 did not apply to the policy the code ran.
 
-We repaired it in two ways and measured the cost of each on identical splits, cells, seeds
-and Γ, so the difference is attributable to the abstain rule alone (E1: K ∈ {3,4,6,8,12} ×
-budgets {80,120,160} ms × 5 seeds = 75 blocks per mode):
+**Auditing the rest of the data flow, we found a second instance of the same defect that the
+reviewer did not mention.** The *fallback* plan was screened by
+`action_train_violation()` over `train_items`, i.e. over the selection split **and** the
+calibration split. So the fallback — the plan a cell deploys when it abstains — was also a
+function of calibration labels. We report this because it is the same error and would have
+been found by the next careful reader. Both are fixed: in the repaired implementation the
+fallback is screened on the selection split alone, as Assumption 1(iii) requires.
+
+We then repaired the abstain rule in two ways and measured the cost of each on identical
+splits, cells, seeds and Γ, so the difference is attributable to the abstain rule alone
+(E1: K ∈ {3,4,6,8,12} × budgets {80,120,160} ms × 5 seeds = 75 blocks per mode):
 
 | Abstain rule | Valid? | ΔR_cert vs released (mean / max) | Δrealized violation | ΔnDCG | Same deployed policy |
 |---|---|---|---|---|---|
@@ -69,9 +77,13 @@ At the paper's headline configuration (K=4, 80 ms) the numbers are:
 | (a) selection-split | **0.2629** | 0.0011 | — |
 | (b) union bound | 0.2866 | 0.0014 | — |
 
-So repair (a) — the one that makes the code match the proposition we actually stated —
-leaves the headline certificate **numerically identical** and *reduces* the realized
-violation slightly. Repair (b) is an alternative for practitioners who prefer the
+One clarification so these numbers are not misread against the submitted paper. All three
+rows above already use the repaired *fallback* screening (selection split only), which is why
+they sit at 0.263 rather than the 0.298 printed in Table IV: moving the fallback screen off
+the calibration split accounts for that difference on its own. Within this like-for-like
+comparison, repair (a) — the one that makes the code match the proposition we actually stated
+— leaves the certificate **numerically identical** to the released abstain rule and *reduces*
+the realized violation slightly. Repair (b) is an alternative for practitioners who prefer the
 data-dependent rule; it costs +0.033 of bound width and nothing else. Across all 225 runs
 (3 modes × 75 blocks) the certificate upper-bounds the realized violation without exception.
 
@@ -131,33 +143,58 @@ Correct, and we have redone it. In the paper the block's payoff was gated on its
 violation, so the objective was retrospective even though the intent was prospective.
 
 In E4 the admission **decision** uses only quantities computable at compile time, and only
-the payoff is settled afterwards: admit iff signal ≤ τ; a withheld window earns 0; an
-admitted window earns nDCG@10 if it stays within τ and −1 if it breaches. We put every
-candidate deployment through every rule (pooled 5-collection workload, 3 budgets × 10 seeds
-= 30 blocks, K=2, δ=0.05, τ=0.05 — the level E5 identifies as certifiable at this scale):
+the payoff is settled afterwards: admit iff signal ≤ τ; a withheld window earns 0; an admitted
+window earns nDCG@10 if it stays within τ and −1 if it breaches.
 
-| Deployment | Admission rule | Prospective? | Admitted | Breaches among admitted | Mean utility |
-|---|---|---|---|---|---|
-| **CWC** | **certificate (Prop. 2, observable Γ)** | **yes** | **96.7%** | **0.0%  (0/29)** | **0.496** |
-| CWC | point estimate | yes | 100% | 0.0% | 0.513 |
-| StaticBest-cal | EB slack, no shift correction | yes | 76.7% | 13.0% (3/23) | 0.300 |
-| CostGreedy-cal | EB slack, no shift correction | yes | 76.7% | 13.0% (3/23) | 0.300 |
-| Static-Qwen3 | EB slack, no shift correction | yes | 76.7% | 13.0% (3/23) | 0.300 |
-| StaticBest-cal | point estimate | yes | 100% | **33.3%** (10/30) | 0.067 |
-| CostGreedy-cal | point estimate | yes | 100% | 33.3% (10/30) | 0.067 |
-| Static-Qwen3 | point estimate | yes | 100% | 33.3% (10/30) | 0.067 |
-| Static-ColBERTv2 | any | — | 0% | — | 0.000 |
-| StaticBest-cal | **post-hoc oracle** (not deployable) | **no** | 66.7% | 0.0% | 0.400 |
-| CWC | post-hoc oracle (not deployable) | no | 100% | 0.0% | 0.513 |
+We also removed a confound that was present in our first draft of this experiment: the
+certificate is a property of the *analysis*, not of CWC, so it can be computed for any fixed
+deployed plan. We therefore grant it to **every** deployment, which separates the admission
+rule from the policy it judges. Pooled 5-collection workload, 3 budgets × 10 seeds = 30
+blocks, K=2, δ=0.05, τ=0.05 — the level E5 identifies as certifiable at this scale:
 
-The comparison the reviewer asked for is the last two rows against the first. **CWC deciding
-purely prospectively (0.496) earns more than the best baseline deciding with clairvoyant
-knowledge of the realized violation (0.400)**, because the baseline's clairvoyant rule has to
-withhold a third of its windows while CWC's certificate lets it serve 97% of them without a
-single breach. The prospective signals available to a baseline — a point estimate, or a
-finite-sample bound that ignores shift — breach on 33.3% and 13.0% of the windows they admit.
-That gap is exactly the value of the shift term, and it is only visible in a prospective
-evaluation. We have replaced the paper's Table VI experiment with this one.
+| Admission rule | Deployment | Admitted | Breaches among admitted | Mean utility |
+|---|---|---|---|---|
+| **certificate** | Static-SPLADE | 96.7% | **0.0%** | **0.532** |
+| **certificate** | **CWC** | 96.7% | **0.0%** | 0.496 |
+| **certificate** | Static-E5 | 100% | **0.0%** | 0.411 |
+| **certificate** | StaticBest-cal | 33.3% | **0.0%** | 0.200 |
+| **certificate** | Static-Qwen3 | 33.3% | **0.0%** | 0.200 |
+| **certificate** | CostGreedy-cal | 26.7% | **0.0%** | 0.160 |
+| **certificate** | Static-ColBERTv2 | 0% | **0.0%** | 0.000 |
+| EB slack, shift ignored | StaticBest-cal / CostGreedy-cal / Static-Qwen3 | 76.7% | **13.0%** (3/23) | 0.300 |
+| point estimate | StaticBest-cal / CostGreedy-cal / Static-Qwen3 | 100% | **33.3%** (10/30) | 0.067 |
+| post-hoc oracle (not deployable) | StaticBest-cal | 66.7% | 0.0% | 0.400 |
+
+Three readings, including one that does not flatter us:
+
+* **The rule is sound, and provably so for every policy, not just ours.** Under the
+  certificate rule, all seven deployments breach on **0 of the windows they admit**. Under the
+  strongest prospective signal a certificate-free operator has, the three quality-seeking
+  recipes breach on 13.0% of admitted windows; under a plain point estimate, 33.3%. That gap
+  is precisely the value of the shift term, and it is invisible in a retrospective evaluation
+  — which is why the reviewer's objection to our Table VI was the right one to raise.
+* **Under a strict SLA the certificate is what makes a good plan bankable.** CWC's compiled
+  plan passes its own certificate on 96.7% of windows; the calibrated static plans pass on
+  26.7–33.3%, so a certified operator serving CWC earns 2.5× the utility of one serving the
+  best calibrated static plan (0.496 vs 0.200) even though that plan has the higher raw nDCG
+  (0.600 vs 0.513). Prospectively, CWC (0.496) also beats the clairvoyant post-hoc rule
+  applied to that baseline (0.400).
+* **On this workload one static operator beats us.** Static-SPLADE is both safe
+  (realized violation 0.0010) and of decent quality (0.550), so under the certificate rule it
+  earns 0.532 against CWC's 0.496. We report this rather than omit it. It is consistent with
+  the paper's scoping: on the canonical 3-collection workload SPLADE is not on the frontier
+  and CWC leads it (nDCG 0.639 vs 0.605, Table III), but on this 5-collection pool at K=2 it
+  is, and CWC's compiled choice does not dominate it. The claim we defend is that CWC is
+  reliably *certifiable at high quality*, not that it beats every operator on every workload.
+
+One trade-off this experiment exposes and that we now state explicitly in the paper: a tight
+certificate wants few, well-populated cells, while good routing wants enough cells to separate
+the workload. At K=2 the τ=0.05 SLA is certifiable but CWC's routing is constrained
+(nDCG 0.513); at K=4 CWC recovers quality (0.580) but the certificate only supports
+τ ≈ 0.30 at this workload size. E5 quantifies the exchange rate, and it is a data-volume
+question rather than a structural one.
+
+We have replaced the paper's Table VI experiment with this one.
 
 ## W3 / D3 — "a bound around 0.30 is difficult to use for tight SLOs"
 

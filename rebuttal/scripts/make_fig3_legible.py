@@ -502,17 +502,20 @@ def main() -> None:
     # 1x4 strip instead of the original 2x2 block: at full two-column width the panels
     # keep 9 pt type (legible in print, R1/R2/R3) while costing much less vertical space,
     # so the enlarged figure does not push the paper onto an extra page.
-    fig = plt.figure(figsize=(7.2, 2.35), dpi=300)
+    # 2x2 at full two-column width with a compressed canvas: panels stay wide enough for
+    # 9 pt type (legible in print, R1/R2/R3) and the figure still fits the page budget.
+    fig = plt.figure(figsize=(7.2, 4.0), dpi=300)
     gs = fig.add_gridspec(
-        1,
-        4,
-        left=0.052,
-        right=0.992,
-        top=0.80,
-        bottom=0.175,
-        wspace=0.46,
+        2,
+        2,
+        left=0.088,
+        right=0.988,
+        top=0.875,
+        bottom=0.095,
+        wspace=0.40,
+        hspace=0.52,
     )
-    axes = [fig.add_subplot(gs[0, j]) for j in range(4)]
+    axes = [fig.add_subplot(gs[i, j]) for i in range(2) for j in range(2)]
 
     source_main = panel_main_rank(axes[0], gate, rank_stats)
     add_panel_label(axes[0], "a")
@@ -525,10 +528,10 @@ def main() -> None:
 
     fig.suptitle(
         "Workload-compiled retrieval is rank-first under constrained hybrid search",
-        x=0.052,
-        y=0.975,
+        x=0.088,
+        y=0.988,
         ha="left",
-        fontsize=12.07,
+        fontsize=10.5,
         fontweight="bold",
     )
 

@@ -161,7 +161,10 @@ def run_block(df, dataset, budget, p_train_by_sel, n_cells, delta, seed, coarsen
         realized = float(np.mean([1.0 if x > budget else 0.0 for x in lats if not math.isnan(x)]))
         rows.append({
             "dataset": dataset, "budget_ms": budget, "seed": seed, "method": name,
-            "certificate": R_cert if name == "CWC" else float("nan"),
+            # The certificate is a property of the analysis, not of CWC: it can be
+            # computed for any fixed deployed plan. Granting it to every method keeps
+            # the deployment (CWC vs a static recipe) separate from the admission rule.
+            "certificate": R_cert,
             "eb-nocorrection": R_eb, "point-estimate": R_point,
             "posthoc-oracle": realized, "realized": realized,
             "ndcg10": float(np.nanmean(nds))})
@@ -211,7 +214,7 @@ def main() -> None:
                 sub = bl[bl["method"] == method]
                 sig = sub[rule]
                 if sig.isna().all():
-                    continue  # a certificate exists only for CWC
+                    continue
                 admit = sig <= tau
                 breach = admit & (sub["realized"] > tau)
                 util = np.where(admit, np.where(sub["realized"] <= tau, sub["ndcg10"],

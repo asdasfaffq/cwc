@@ -15,239 +15,239 @@
     "rerank50_pre"
   ],
   "budgets_ms": [
-    9.39,
-    20.66,
-    45.43,
-    99.91
+    9.42,
+    20.59,
+    45.02,
+    98.41
   ],
   "index_build_s": {
-    "doc_embed": 190.7,
+    "doc_embed": 189.9,
     "hnsw": 23.7,
-    "bm25": 7.4
+    "bm25": 7.1
   },
   "mean_plan_latency_ms": {
-    "bm25_pre": 0.9655017068143934,
-    "bm25_post": 1.1742809711722657,
-    "dense_pre": 25.4687033224036,
-    "dense_post": 0.41541188955307007,
-    "rrf_pre": 26.42173132742755,
-    "rrf_post": 1.729371949331835,
-    "rerank20_pre": 47.890990698942915,
-    "rerank50_pre": 76.5513583124266
+    "bm25_pre": 0.9528654822497629,
+    "bm25_post": 1.1861946783028543,
+    "dense_pre": 24.96752771548927,
+    "dense_post": 0.3942364198155701,
+    "rrf_pre": 25.894436726812273,
+    "rrf_post": 1.7127585693378933,
+    "rerank20_pre": 46.726979382219724,
+    "rerank50_pre": 75.09655250381911
   },
   "mean_plan_ndcg10": {
     "bm25_pre": 0.11266248076654611,
     "bm25_post": 0.11053798404677988,
-    "dense_pre": 0.12835281980178637,
-    "dense_post": 0.12040117148350614,
-    "rrf_pre": 0.13197067996266412,
-    "rrf_post": 0.13024915342456686,
-    "rerank20_pre": 0.13749845450677786,
-    "rerank50_pre": 0.14247343257069908
+    "dense_pre": 0.13066433987352655,
+    "dense_post": 0.12522989173574187,
+    "rrf_pre": 0.13394045807413707,
+    "rrf_post": 0.132745838136915,
+    "rerank20_pre": 0.1413239394163001,
+    "rerank50_pre": 0.14592922743066922
   },
   "per_selectivity_profile": {
     "1.0": {
       "bm25_pre": {
-        "lat_ms": 1.283,
+        "lat_ms": 1.278,
         "ndcg10": 0.2144
       },
       "bm25_post": {
-        "lat_ms": 1.169,
+        "lat_ms": 1.188,
         "ndcg10": 0.2144
       },
       "dense_pre": {
-        "lat_ms": 0.479,
-        "ndcg10": 0.2322
+        "lat_ms": 0.448,
+        "ndcg10": 0.2374
       },
       "dense_post": {
-        "lat_ms": 0.339,
-        "ndcg10": 0.2322
+        "lat_ms": 0.319,
+        "ndcg10": 0.2374
       },
       "rrf_pre": {
-        "lat_ms": 1.697,
-        "ndcg10": 0.2382
+        "lat_ms": 1.654,
+        "ndcg10": 0.2431
       },
       "rrf_post": {
-        "lat_ms": 1.582,
-        "ndcg10": 0.2382
+        "lat_ms": 1.571,
+        "ndcg10": 0.2431
       },
       "rerank20_pre": {
-        "lat_ms": 22.392,
-        "ndcg10": 0.2429
+        "lat_ms": 22.146,
+        "ndcg10": 0.2524
       },
       "rerank50_pre": {
-        "lat_ms": 50.587,
-        "ndcg10": 0.2527
+        "lat_ms": 49.745,
+        "ndcg10": 0.2611
       }
     },
     "0.5": {
       "bm25_pre": {
-        "lat_ms": 1.188,
+        "lat_ms": 1.181,
         "ndcg10": 0.1469
       },
       "bm25_post": {
-        "lat_ms": 1.177,
+        "lat_ms": 1.191,
         "ndcg10": 0.1469
       },
       "dense_pre": {
-        "lat_ms": 1.677,
-        "ndcg10": 0.1695
+        "lat_ms": 1.609,
+        "ndcg10": 0.1736
       },
       "dense_post": {
-        "lat_ms": 0.401,
-        "ndcg10": 0.1583
+        "lat_ms": 0.374,
+        "ndcg10": 0.165
       },
       "rrf_pre": {
-        "lat_ms": 2.855,
-        "ndcg10": 0.1796
+        "lat_ms": 2.766,
+        "ndcg10": 0.1826
       },
       "rrf_post": {
-        "lat_ms": 1.682,
-        "ndcg10": 0.1755
+        "lat_ms": 1.648,
+        "ndcg10": 0.1788
       },
       "rerank20_pre": {
-        "lat_ms": 23.483,
-        "ndcg10": 0.1907
+        "lat_ms": 22.971,
+        "ndcg10": 0.1965
       },
       "rerank50_pre": {
-        "lat_ms": 51.743,
-        "ndcg10": 0.1971
+        "lat_ms": 50.261,
+        "ndcg10": 0.2024
       }
     },
     "0.1": {
       "bm25_pre": {
-        "lat_ms": 0.718,
+        "lat_ms": 0.693,
         "ndcg10": 0.0647
       },
       "bm25_post": {
-        "lat_ms": 1.181,
+        "lat_ms": 1.18,
         "ndcg10": 0.0635
       },
       "dense_pre": {
-        "lat_ms": 21.104,
+        "lat_ms": 20.529,
         "ndcg10": 0.0823
       },
       "dense_post": {
-        "lat_ms": 0.457,
-        "ndcg10": 0.07
+        "lat_ms": 0.437,
+        "ndcg10": 0.0743
       },
       "rrf_pre": {
-        "lat_ms": 21.677,
+        "lat_ms": 21.132,
         "ndcg10": 0.0796
       },
       "rrf_post": {
-        "lat_ms": 1.806,
-        "ndcg10": 0.0825
+        "lat_ms": 1.815,
+        "ndcg10": 0.0837
       },
       "rerank20_pre": {
-        "lat_ms": 43.214,
+        "lat_ms": 41.732,
         "ndcg10": 0.0852
       },
       "rerank50_pre": {
-        "lat_ms": 72.291,
+        "lat_ms": 70.661,
         "ndcg10": 0.0856
       }
     },
     "0.02": {
       "bm25_pre": {
-        "lat_ms": 0.674,
+        "lat_ms": 0.66,
         "ndcg10": 0.0246
       },
       "bm25_post": {
-        "lat_ms": 1.171,
+        "lat_ms": 1.186,
         "ndcg10": 0.0173
       },
       "dense_pre": {
-        "lat_ms": 78.614,
+        "lat_ms": 77.284,
         "ndcg10": 0.0294
       },
       "dense_post": {
-        "lat_ms": 0.464,
-        "ndcg10": 0.0212
+        "lat_ms": 0.447,
+        "ndcg10": 0.0243
       },
       "rrf_pre": {
-        "lat_ms": 79.458,
+        "lat_ms": 78.026,
         "ndcg10": 0.0305
       },
       "rrf_post": {
-        "lat_ms": 1.847,
-        "ndcg10": 0.0248
+        "lat_ms": 1.817,
+        "ndcg10": 0.0254
       },
       "rerank20_pre": {
-        "lat_ms": 102.475,
+        "lat_ms": 100.059,
         "ndcg10": 0.0312
       },
       "rerank50_pre": {
-        "lat_ms": 131.585,
+        "lat_ms": 129.719,
         "ndcg10": 0.0346
       }
     }
   },
-  "telemetry_probe_ms_mean": 2.456892658083234,
-  "telemetry_probe_ms_p95": 4.695843206718564,
+  "telemetry_probe_ms_mean": 2.422091693151742,
+  "telemetry_probe_ms_p95": 4.710108716972171,
   "mean_service_ms_open_loop": {
-    "CWC": 2.7430733219565204,
-    "StaticBest-cal": 1.0989255970343947,
-    "CostGreedy-cal": 1.1204576255598415,
-    "Static-BestQuality": 102.32108540755387
+    "CWC": 2.430698665557429,
+    "StaticBest-cal": 1.0710595893518378,
+    "CostGreedy-cal": 1.0622008684246491,
+    "Static-BestQuality": 83.52726395435941
   },
-  "reference_capacity_qps": 9.773156686296986,
+  "reference_capacity_qps": 672.5296082898999,
   "cwc_deployments": [
     {
-      "budget_ms": 9.39,
+      "budget_ms": 9.42,
       "seed": 13,
       "fallback": "rrf_post",
-      "deployed": "rrf_post|rrf_post|bm25_pre|rrf_pre",
-      "n_cal_min": 19
+      "deployed": "rrf_post|rrf_post|rrf_post|rrf_pre",
+      "n_cal_min": 18
     },
     {
-      "budget_ms": 9.39,
+      "budget_ms": 9.42,
       "seed": 17,
       "fallback": "rrf_post",
-      "deployed": "rrf_pre|rrf_post|rrf_post|rrf_post",
-      "n_cal_min": 1
+      "deployed": "rrf_post|rrf_pre|dense_post|bm25_pre",
+      "n_cal_min": 25
     },
     {
-      "budget_ms": 20.66,
+      "budget_ms": 20.59,
       "seed": 13,
       "fallback": "rrf_post",
-      "deployed": "rrf_post|rrf_post|bm25_pre|rrf_pre",
-      "n_cal_min": 19
+      "deployed": "rrf_post|rrf_post|rrf_post|rrf_pre",
+      "n_cal_min": 18
     },
     {
-      "budget_ms": 20.66,
+      "budget_ms": 20.59,
       "seed": 17,
       "fallback": "rrf_post",
-      "deployed": "rrf_pre|rrf_post|rrf_post|rrf_post",
-      "n_cal_min": 1
+      "deployed": "rrf_post|rrf_pre|dense_post|bm25_pre",
+      "n_cal_min": 25
     },
     {
-      "budget_ms": 45.43,
+      "budget_ms": 45.02,
       "seed": 13,
       "fallback": "rrf_post",
-      "deployed": "rrf_post|rrf_post|bm25_pre|rerank20_pre",
-      "n_cal_min": 19
+      "deployed": "rrf_post|rrf_post|rrf_post|rerank20_pre",
+      "n_cal_min": 18
     },
     {
-      "budget_ms": 45.43,
+      "budget_ms": 45.02,
       "seed": 17,
       "fallback": "rrf_post",
-      "deployed": "rrf_pre|rrf_post|rrf_post|rrf_post",
-      "n_cal_min": 1
+      "deployed": "rrf_post|rrf_pre|dense_post|bm25_pre",
+      "n_cal_min": 25
     },
     {
-      "budget_ms": 99.91,
+      "budget_ms": 98.41,
       "seed": 13,
       "fallback": "rrf_pre",
-      "deployed": "rrf_pre|rrf_pre|rrf_pre|rerank50_pre",
-      "n_cal_min": 19
+      "deployed": "rrf_pre|rrf_pre|rrf_post|rerank50_pre",
+      "n_cal_min": 18
     },
     {
-      "budget_ms": 99.91,
+      "budget_ms": 98.41,
       "seed": 17,
-      "fallback": "rrf_pre",
-      "deployed": "rrf_pre|rrf_post|rrf_pre|rrf_pre",
-      "n_cal_min": 1
+      "fallback": "rrf_post",
+      "deployed": "rrf_post|rrf_pre|dense_pre|rrf_post",
+      "n_cal_min": 25
     }
   ]
 }

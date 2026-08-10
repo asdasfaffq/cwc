@@ -17,8 +17,8 @@ Source data:
 - feature_ablation: `rebuttal/figures_legible/source_feature_ablation.csv`
 
 Checks:
-- editable_svg_text: 94 SVG text nodes
-- tiff_resolution: 5012x1451 px, mode=RGBA
+- editable_svg_text: 107 SVG text nodes
+- tiff_resolution: 4632x2467 px, mode=RGBA
 - rank_gate_blocks: 30
 - rank_gate_pass: True
 - backend_exclusivity: All rendering and QA exports were produced with Python/matplotlib/Pillow.
