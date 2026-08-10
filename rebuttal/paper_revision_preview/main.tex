@@ -1,0 +1,87 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts,amsthm,mathtools}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{cite}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=black]{hyperref}
+\usepackage{orcidlink}
+
+\graphicspath{{figures/}}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{assumption}{Assumption}
+\newtheorem{proposition}{Proposition}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+\input{math_commands}
+% Run-in heading: IEEEtran numbers \paragraph as ``a)'', which produced a stray
+% enumerator at the head of the results section (R1-D9) and buried a run-in heading
+% inside a paragraph (R1-D13).
+\newcommand{\parhead}[1]{\par\smallskip\noindent\textbf{#1}\ }
+
+\IEEEoverridecommandlockouts
+\title{Certified Workload-Window Plan Selection for Hybrid Vector Search under SLOs}
+
+\author{%
+\IEEEauthorblockN{%
+Yanxiao~Li\textsuperscript{1}\,\orcidlink{0009-0008-3389-1619},
+Junhao~Wei\textsuperscript{1}\,\orcidlink{0009-0006-0553-2032},
+Yifu~Zhao\textsuperscript{1}\,\orcidlink{0009-0004-2363-9269},
+Haochen~Li\textsuperscript{1}\,\orcidlink{0009-0000-8213-5854},
+Xu~Yang\textsuperscript{1}\,\orcidlink{0000-0002-7037-3609},
+Sio-Kei~Im\textsuperscript{2}\,\orcidlink{0000-0002-5599-4300},
+Yapeng~Wang\textsuperscript{1,*}\,\orcidlink{0000-0002-1085-5091}}
+\IEEEauthorblockA{%
+\textsuperscript{1}Faculty of Applied Sciences, Macao Polytechnic University, Macao SAR, China\\
+\textsuperscript{2}Macao Polytechnic University, Macao SAR, China\\
+\textsuperscript{*}Corresponding author: Yapeng Wang (e-mail: yapengwang@mpu.edu.mo)}
+\thanks{This work was supported by the FDCT--MOST grant 0018/2025/AMJ and by Macao Polytechnic University grant RP/FCA-25/2025. Manuscript submitted June~2026.}}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\input{sections/0_abstract}
+\end{abstract}
+
+\begin{IEEEkeywords}
+Hybrid search, vector search, query processing and optimization, physical plan selection, workload-aware optimization, service-level objectives, distribution-free risk control
+\end{IEEEkeywords}
+
+\input{sections/1_introduction}
+\input{sections/6_related_work}
+\input{sections/2_problem}
+\input{sections/3_optimizer}
+\input{sections/3b_certificate}
+\input{sections/4_experimental_protocol}
+\input{sections/5_results_and_analysis}
+\input{sections/7_discussion_conclusion}
+
+\section*{Data Availability Statement}
+The datasets are public BEIR benchmarks~\cite{thakur2021beir} (SciFact, FiQA-2018, NFCorpus), available via the BEIR repository (\url{https://github.com/beir-cellar/beir}) and the Hugging Face Hub (\url{https://huggingface.co/BeIR}). Core code is available at \url{https://github.com/asdasfaffq/cwc}; the full pipeline and precomputed artifacts are released upon publication.
+
+\section*{Conflict of Interest}
+The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
+
+\section*{AI-Generated Content Acknowledgment}
+The authors used ChatGPT for language editing. All technical claims, experimental results, citations, and final text were verified by the authors, who take full responsibility for the content.
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

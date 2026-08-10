@@ -1,0 +1,145 @@
+/home/lyx/桌面/icde2027-moo-data-idea/scripts/certified_window_compiler.py:50: DtypeWarning: Columns (47) have mixed types. Specify dtype option on import or set low_memory=False.
+  df = pd.read_csv(csv_path)
+  done K=3 budget=80 seed=13
+  done K=3 budget=80 seed=17
+  done K=3 budget=80 seed=23
+  done K=3 budget=80 seed=29
+  done K=3 budget=80 seed=31
+  done K=3 budget=120 seed=13
+  done K=3 budget=120 seed=17
+  done K=3 budget=120 seed=23
+  done K=3 budget=120 seed=29
+  done K=3 budget=120 seed=31
+  done K=3 budget=160 seed=13
+  done K=3 budget=160 seed=17
+  done K=3 budget=160 seed=23
+  done K=3 budget=160 seed=29
+  done K=3 budget=160 seed=31
+  done K=4 budget=80 seed=13
+  done K=4 budget=80 seed=17
+  done K=4 budget=80 seed=23
+  done K=4 budget=80 seed=29
+  done K=4 budget=80 seed=31
+  done K=4 budget=120 seed=13
+  done K=4 budget=120 seed=17
+  done K=4 budget=120 seed=23
+  done K=4 budget=120 seed=29
+  done K=4 budget=120 seed=31
+  done K=4 budget=160 seed=13
+  done K=4 budget=160 seed=17
+  done K=4 budget=160 seed=23
+  done K=4 budget=160 seed=29
+  done K=4 budget=160 seed=31
+  done K=6 budget=80 seed=13
+  done K=6 budget=80 seed=17
+  done K=6 budget=80 seed=23
+  done K=6 budget=80 seed=29
+  done K=6 budget=80 seed=31
+  done K=6 budget=120 seed=13
+  done K=6 budget=120 seed=17
+  done K=6 budget=120 seed=23
+  done K=6 budget=120 seed=29
+  done K=6 budget=120 seed=31
+  done K=6 budget=160 seed=13
+  done K=6 budget=160 seed=17
+  done K=6 budget=160 seed=23
+  done K=6 budget=160 seed=29
+  done K=6 budget=160 seed=31
+  done K=8 budget=80 seed=13
+  done K=8 budget=80 seed=17
+  done K=8 budget=80 seed=23
+  done K=8 budget=80 seed=29
+  done K=8 budget=80 seed=31
+  done K=8 budget=120 seed=13
+  done K=8 budget=120 seed=17
+  done K=8 budget=120 seed=23
+  done K=8 budget=120 seed=29
+  done K=8 budget=120 seed=31
+  done K=8 budget=160 seed=13
+  done K=8 budget=160 seed=17
+  done K=8 budget=160 seed=23
+  done K=8 budget=160 seed=29
+  done K=8 budget=160 seed=31
+  done K=12 budget=80 seed=13
+  done K=12 budget=80 seed=17
+  done K=12 budget=80 seed=23
+  done K=12 budget=80 seed=29
+  done K=12 budget=80 seed=31
+  done K=12 budget=120 seed=13
+  done K=12 budget=120 seed=17
+  done K=12 budget=120 seed=23
+  done K=12 budget=120 seed=29
+  done K=12 budget=120 seed=31
+  done K=12 budget=160 seed=13
+  done K=12 budget=160 seed=17
+  done K=12 budget=160 seed=23
+  done K=12 budget=160 seed=29
+  done K=12 budget=160 seed=31
+{
+  "union": {
+    "delta_R_cert_mean": 0.03313716853079052,
+    "delta_R_cert_max": 0.04807839708775047,
+    "delta_viol_mean": 0.0007455222016453018,
+    "delta_viol_max": 0.02840909090909091,
+    "delta_ndcg_mean": 0.0007056457328205611,
+    "delta_ndcg_min": -0.0011598687569196464,
+    "identical_deployed_policy_frac": 0.9333333333333333
+  },
+  "selection": {
+    "delta_R_cert_mean": 0.0026400273011808377,
+    "delta_R_cert_max": 0.061236920165433584,
+    "delta_viol_mean": -0.0006219495570633101,
+    "delta_viol_max": 0.02840909090909091,
+    "delta_ndcg_mean": -0.007740929787310365,
+    "delta_ndcg_min": -0.05044903836732961,
+    "identical_deployed_policy_frac": 0.5066666666666667
+  },
+  "n_runs_per_mode": 75,
+  "upper_bounds_realized_all_modes": true
+}
+ n_cells  budget_ms        mode   R_cert     viol     ndcg  abstain  upper_bounds  runs
+       3       80.0 as-released 0.227187 0.000634 0.582772 0.674200           1.0     5
+       3       80.0   selection 0.227187 0.000634 0.582772 0.674200           1.0     5
+       3       80.0       union 0.260134 0.000634 0.582772 0.674200           1.0     5
+       3      120.0 as-released 0.227187 0.004726 0.583342 0.674200           1.0     5
+       3      120.0   selection 0.227187 0.000000 0.582882 0.697708           1.0     5
+       3      120.0       union 0.260134 0.004726 0.583342 0.674200           1.0     5
+       3      160.0 as-released 0.227187 0.002911 0.623985 0.135260           1.0     5
+       3      160.0   selection 0.227187 0.001393 0.585237 0.674200           1.0     5
+       3      160.0       union 0.260134 0.002911 0.623985 0.135260           1.0     5
+       4       80.0 as-released 0.262886 0.001394 0.603993 0.000000           1.0     5
+       4       80.0   selection 0.262886 0.001144 0.592353 0.185893           1.0     5
+       4       80.0       union 0.286604 0.001394 0.603993 0.000000           1.0     5
+       4      120.0 as-released 0.262886 0.004353 0.603729 0.421535           1.0     5
+       4      120.0   selection 0.262886 0.000000 0.603336 0.442306           1.0     5
+       4      120.0       union 0.286604 0.004353 0.603729 0.421535           1.0     5
+       4      160.0 as-released 0.262886 0.003167 0.630905 0.104046           1.0     5
+       4      160.0   selection 0.262886 0.001650 0.605431 0.522405           1.0     5
+       4      160.0       union 0.286604 0.003167 0.630905 0.104046           1.0     5
+       6       80.0 as-released 0.397706 0.001394 0.594854 0.154174           1.0     5
+       6       80.0   selection 0.397706 0.001144 0.591109 0.276826           1.0     5
+       6       80.0       union 0.428926 0.001394 0.594854 0.154174           1.0     5
+       6      120.0 as-released 0.397706 0.006794 0.596521 0.488108           1.0     5
+       6      120.0   selection 0.407661 0.008602 0.603034 0.434396           1.0     5
+       6      120.0       union 0.428926 0.006794 0.596521 0.488108           1.0     5
+       6      160.0 as-released 0.397706 0.003422 0.629694 0.095183           1.0     5
+       6      160.0   selection 0.397706 0.002160 0.616201 0.403212           1.0     5
+       6      160.0       union 0.428926 0.003422 0.629694 0.095183           1.0     5
+       8       80.0 as-released 0.549571 0.001648 0.602418 0.014644           1.0     5
+       8       80.0   selection 0.549571 0.001648 0.595276 0.123498           1.0     5
+       8       80.0       union 0.589393 0.002547 0.602186 0.000000           1.0     5
+       8      120.0 as-released 0.549571 0.003014 0.603001 0.402521           1.0     5
+       8      120.0   selection 0.550092 0.003142 0.602769 0.387878           1.0     5
+       8      120.0       union 0.589393 0.005595 0.604046 0.337652           1.0     5
+       8      160.0 as-released 0.549571 0.002034 0.633168 0.047270           1.0     5
+       8      160.0   selection 0.561818 0.001529 0.621506 0.195335           1.0     5
+       8      160.0       union 0.589393 0.002034 0.633168 0.047270           1.0     5
+      12       80.0 as-released 0.720797 0.001641 0.596187 0.161799           1.0     5
+      12       80.0   selection 0.725203 0.007322 0.595407 0.171327           1.0     5
+      12       80.0       union 0.758775 0.007322 0.601072 0.119628           1.0     5
+      12      120.0 as-released 0.720797 0.013716 0.609019 0.242852           1.0     5
+      12      120.0   selection 0.725203 0.011152 0.608920 0.282171           1.0     5
+      12      120.0       union 0.758775 0.015736 0.613905 0.200681           1.0     5
+      12      160.0 as-released 0.720797 0.002158 0.632495 0.040591           1.0     5
+      12      160.0   selection 0.728863 0.002158 0.623738 0.081521           1.0     5
+      12      160.0       union 0.758775 0.002158 0.632495 0.040591           1.0     5

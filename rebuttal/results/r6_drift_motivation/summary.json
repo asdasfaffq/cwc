@@ -1,0 +1,190 @@
+{
+  "drift_levels": [
+    0.0,
+    0.15,
+    0.3,
+    0.45
+  ],
+  "sensitivity": [
+    {
+      "budget_ms": 80.0,
+      "policy": "StaticBest-cal",
+      "violation_no_drift": 0.00015278838808250572,
+      "violation_max_drift": 0.12446455013692292,
+      "violation_delta": 0.12431176174884041,
+      "p95_ratio": 3.036074923542888,
+      "throughput_ratio": 0.3744651352712431,
+      "ndcg_delta": 0.06777001674635819
+    },
+    {
+      "budget_ms": 80.0,
+      "policy": "Fixed-rerank@100",
+      "violation_no_drift": 0.10185294379528953,
+      "violation_max_drift": 0.15461122879042427,
+      "violation_delta": 0.05275828499513474,
+      "p95_ratio": 1.069203440090205,
+      "throughput_ratio": 0.882187468805541,
+      "ndcg_delta": 0.00891243891464788
+    },
+    {
+      "budget_ms": 80.0,
+      "policy": "SOTA-Qwen3",
+      "violation_no_drift": 0.08590954451589317,
+      "violation_max_drift": 0.12446455013692292,
+      "violation_delta": 0.03855500562102976,
+      "p95_ratio": 1.122174879870461,
+      "throughput_ratio": 0.7978241196965146,
+      "ndcg_delta": 0.01512872313144753
+    },
+    {
+      "budget_ms": 80.0,
+      "policy": "Fixed-rerank@50",
+      "violation_no_drift": 0.026738831708140592,
+      "violation_max_drift": 0.04145370672038727,
+      "violation_delta": 0.014714875012246678,
+      "p95_ratio": 1.0845083432520581,
+      "throughput_ratio": 0.8574578272171517,
+      "ndcg_delta": 0.00891243891464788
+    },
+    {
+      "budget_ms": 80.0,
+      "policy": "CWC",
+      "violation_no_drift": 0.0015446618955656023,
+      "violation_max_drift": 0.009962159249735673,
+      "violation_delta": 0.008417497354170071,
+      "p95_ratio": 1.0770122530820316,
+      "throughput_ratio": 0.8523989357631998,
+      "ndcg_delta": 0.008950294346362075
+    },
+    {
+      "budget_ms": 80.0,
+      "policy": "Fixed-fusion(RRF)",
+      "violation_no_drift": 0.006604045156697479,
+      "violation_max_drift": 0.011309777550218397,
+      "violation_delta": 0.004705732393520918,
+      "p95_ratio": 1.0662433250637262,
+      "throughput_ratio": 0.8334985240647798,
+      "ndcg_delta": 0.0019259762488141874
+    },
+    {
+      "budget_ms": 80.0,
+      "policy": "SOTA-SPLADE",
+      "violation_no_drift": 0.00015278838808250572,
+      "violation_max_drift": 0.0005887825879608161,
+      "violation_delta": 0.0004359941998783104,
+      "p95_ratio": 1.0702090203890227,
+      "throughput_ratio": 0.8045291201607904,
+      "ndcg_delta": 0.017237977379507052
+    },
+    {
+      "budget_ms": 80.0,
+      "policy": "BM25-only",
+      "violation_no_drift": 0.0,
+      "violation_max_drift": 0.0,
+      "violation_delta": 0.0,
+      "p95_ratio": 1.086449452585189,
+      "throughput_ratio": 0.7915856322087249,
+      "ndcg_delta": 0.008489445349773028
+    },
+    {
+      "budget_ms": 80.0,
+      "policy": "Dense-only",
+      "violation_no_drift": 0.0,
+      "violation_max_drift": 0.0,
+      "violation_delta": 0.0,
+      "p95_ratio": 1.0633043362072423,
+      "throughput_ratio": 0.7967008638790044,
+      "ndcg_delta": 0.004542659696517348
+    },
+    {
+      "budget_ms": 120.0,
+      "policy": "CWC",
+      "violation_no_drift": 0.0,
+      "violation_max_drift": 0.021453566439277674,
+      "violation_delta": 0.021453566439277674,
+      "p95_ratio": 1.6701353223699547,
+      "throughput_ratio": 0.696697569570057,
+      "ndcg_delta": 0.02042301381449929
+    },
+    {
+      "budget_ms": 120.0,
+      "policy": "SOTA-Qwen3",
+      "violation_no_drift": 0.03542087490458719,
+      "violation_max_drift": 0.05157050267849121,
+      "violation_delta": 0.016149627773904024,
+      "p95_ratio": 1.122174879870461,
+      "throughput_ratio": 0.7978241196965146,
+      "ndcg_delta": 0.01512872313144753
+    },
+    {
+      "budget_ms": 120.0,
+      "policy": "StaticBest-cal",
+      "violation_no_drift": 0.03542087490458719,
+      "violation_max_drift": 0.05157050267849121,
+      "violation_delta": 0.016149627773904024,
+      "p95_ratio": 1.122174879870461,
+      "throughput_ratio": 0.7978241196965146,
+      "ndcg_delta": 0.01512872313144753
+    },
+    {
+      "budget_ms": 120.0,
+      "policy": "Fixed-rerank@100",
+      "violation_no_drift": 0.003522545458445947,
+      "violation_max_drift": 0.005652018292483409,
+      "violation_delta": 0.002129472834037462,
+      "p95_ratio": 1.069203440090205,
+      "throughput_ratio": 0.882187468805541,
+      "ndcg_delta": 0.00891243891464788
+    },
+    {
+      "budget_ms": 120.0,
+      "policy": "Fixed-rerank@50",
+      "violation_no_drift": 0.000300593791304122,
+      "violation_max_drift": 0.00035297500083606326,
+      "violation_delta": 5.2381209531941276e-05,
+      "p95_ratio": 1.0845083432520581,
+      "throughput_ratio": 0.8574578272171517,
+      "ndcg_delta": 0.00891243891464788
+    },
+    {
+      "budget_ms": 120.0,
+      "policy": "BM25-only",
+      "violation_no_drift": 0.0,
+      "violation_max_drift": 0.0,
+      "violation_delta": 0.0,
+      "p95_ratio": 1.086449452585189,
+      "throughput_ratio": 0.7915856322087249,
+      "ndcg_delta": 0.008489445349773028
+    },
+    {
+      "budget_ms": 120.0,
+      "policy": "Dense-only",
+      "violation_no_drift": 0.0,
+      "violation_max_drift": 0.0,
+      "violation_delta": 0.0,
+      "p95_ratio": 1.0633043362072423,
+      "throughput_ratio": 0.7967008638790044,
+      "ndcg_delta": 0.004542659696517348
+    },
+    {
+      "budget_ms": 120.0,
+      "policy": "Fixed-fusion(RRF)",
+      "violation_no_drift": 0.0,
+      "violation_max_drift": 0.0,
+      "violation_delta": 0.0,
+      "p95_ratio": 1.0662433250637262,
+      "throughput_ratio": 0.8334985240647798,
+      "ndcg_delta": 0.0019259762488141874
+    },
+    {
+      "budget_ms": 120.0,
+      "policy": "SOTA-SPLADE",
+      "violation_no_drift": 0.0,
+      "violation_max_drift": 0.0,
+      "violation_delta": 0.0,
+      "p95_ratio": 1.0702090203890227,
+      "throughput_ratio": 0.8045291201607904,
+      "ndcg_delta": 0.017237977379507052
+    }
+  ]
+}

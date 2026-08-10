@@ -1,0 +1,86 @@
+/home/lyx/桌面/icde2027-moo-data-idea/scripts/certified_window_compiler.py:50: DtypeWarning: Columns (47) have mixed types. Specify dtype option on import or set low_memory=False.
+  df = pd.read_csv(csv_path)
+  done fiqa budget=80
+  done fiqa budget=120
+  done fiqa budget=160
+  done nfcorpus budget=80
+  done nfcorpus budget=120
+  done nfcorpus budget=160
+  done scifact budget=80
+  done scifact budget=120
+  done scifact budget=160
+
+=== tau = 0.05 ===
+ tau            rule  prospective           method  blocks  admitted_frac  breaches  breach_rate_among_admitted  mean_utility  mean_realized_violation  mean_ndcg
+0.05     certificate         True              CWC      45       0.000000         0                    0.000000      0.000000                 0.007169   0.639131
+0.05 eb-nocorrection         True              CWC      45       0.000000         0                    0.000000      0.000000                 0.007169   0.639131
+0.05 eb-nocorrection         True   CostGreedy-cal      45       0.000000         0                    0.000000      0.000000                 0.002775   0.636938
+0.05 eb-nocorrection         True Static-ColBERTv2      45       0.000000         0                    0.000000      0.000000                 0.583348   0.583948
+0.05 eb-nocorrection         True        Static-E5      45       0.000000         0                    0.000000      0.000000                 0.000000   0.541808
+0.05 eb-nocorrection         True     Static-Qwen3      45       0.000000         0                    0.000000      0.000000                 0.088620   0.638287
+0.05 eb-nocorrection         True    Static-SPLADE      45       0.000000         0                    0.000000      0.000000                 0.000206   0.605017
+0.05 eb-nocorrection         True   StaticBest-cal      45       0.000000         0                    0.000000      0.000000                 0.002099   0.637175
+0.05  point-estimate         True              CWC      45       0.977778         2                    0.045455      0.536957                 0.007169   0.639131
+0.05  point-estimate         True   CostGreedy-cal      45       1.000000         0                    0.000000      0.636938                 0.002775   0.636938
+0.05  point-estimate         True Static-ColBERTv2      45       0.000000         0                    0.000000      0.000000                 0.583348   0.583948
+0.05  point-estimate         True        Static-E5      45       1.000000         0                    0.000000      0.541808                 0.000000   0.541808
+0.05  point-estimate         True     Static-Qwen3      45       0.777778         0                    0.000000      0.447035                 0.088620   0.638287
+0.05  point-estimate         True    Static-SPLADE      45       1.000000         0                    0.000000      0.605017                 0.000206   0.605017
+0.05  point-estimate         True   StaticBest-cal      45       1.000000         0                    0.000000      0.637175                 0.002099   0.637175
+0.05  posthoc-oracle        False              CWC      45       0.933333         0                    0.000000      0.581401                 0.007169   0.639131
+0.05  posthoc-oracle        False   CostGreedy-cal      45       1.000000         0                    0.000000      0.636938                 0.002775   0.636938
+0.05  posthoc-oracle        False Static-ColBERTv2      45       0.000000         0                    0.000000      0.000000                 0.583348   0.583948
+0.05  posthoc-oracle        False        Static-E5      45       1.000000         0                    0.000000      0.541808                 0.000000   0.541808
+0.05  posthoc-oracle        False     Static-Qwen3      45       0.777778         0                    0.000000      0.447035                 0.088620   0.638287
+0.05  posthoc-oracle        False    Static-SPLADE      45       1.000000         0                    0.000000      0.605017                 0.000206   0.605017
+0.05  posthoc-oracle        False   StaticBest-cal      45       1.000000         0                    0.000000      0.637175                 0.002099   0.637175
+
+=== tau = 0.1 ===
+ tau            rule  prospective           method  blocks  admitted_frac  breaches  breach_rate_among_admitted  mean_utility  mean_realized_violation  mean_ndcg
+ 0.1     certificate         True              CWC      45       0.000000         0                    0.000000      0.000000                 0.007169   0.639131
+ 0.1 eb-nocorrection         True              CWC      45       0.000000         0                    0.000000      0.000000                 0.007169   0.639131
+ 0.1 eb-nocorrection         True   CostGreedy-cal      45       0.000000         0                    0.000000      0.000000                 0.002775   0.636938
+ 0.1 eb-nocorrection         True Static-ColBERTv2      45       0.000000         0                    0.000000      0.000000                 0.583348   0.583948
+ 0.1 eb-nocorrection         True        Static-E5      45       0.000000         0                    0.000000      0.000000                 0.000000   0.541808
+ 0.1 eb-nocorrection         True     Static-Qwen3      45       0.000000         0                    0.000000      0.000000                 0.088620   0.638287
+ 0.1 eb-nocorrection         True    Static-SPLADE      45       0.000000         0                    0.000000      0.000000                 0.000206   0.605017
+ 0.1 eb-nocorrection         True   StaticBest-cal      45       0.000000         0                    0.000000      0.000000                 0.002099   0.637175
+ 0.1  point-estimate         True              CWC      45       1.000000         0                    0.000000      0.639131                 0.007169   0.639131
+ 0.1  point-estimate         True   CostGreedy-cal      45       1.000000         0                    0.000000      0.636938                 0.002775   0.636938
+ 0.1  point-estimate         True Static-ColBERTv2      45       0.000000         0                    0.000000      0.000000                 0.583348   0.583948
+ 0.1  point-estimate         True        Static-E5      45       1.000000         0                    0.000000      0.541808                 0.000000   0.541808
+ 0.1  point-estimate         True     Static-Qwen3      45       0.800000         1                    0.027778      0.424813                 0.088620   0.638287
+ 0.1  point-estimate         True    Static-SPLADE      45       1.000000         0                    0.000000      0.605017                 0.000206   0.605017
+ 0.1  point-estimate         True   StaticBest-cal      45       1.000000         0                    0.000000      0.637175                 0.002099   0.637175
+ 0.1  posthoc-oracle        False              CWC      45       1.000000         0                    0.000000      0.639131                 0.007169   0.639131
+ 0.1  posthoc-oracle        False   CostGreedy-cal      45       1.000000         0                    0.000000      0.636938                 0.002775   0.636938
+ 0.1  posthoc-oracle        False Static-ColBERTv2      45       0.000000         0                    0.000000      0.000000                 0.583348   0.583948
+ 0.1  posthoc-oracle        False        Static-E5      45       1.000000         0                    0.000000      0.541808                 0.000000   0.541808
+ 0.1  posthoc-oracle        False     Static-Qwen3      45       0.777778         0                    0.000000      0.447035                 0.088620   0.638287
+ 0.1  posthoc-oracle        False    Static-SPLADE      45       1.000000         0                    0.000000      0.605017                 0.000206   0.605017
+ 0.1  posthoc-oracle        False   StaticBest-cal      45       1.000000         0                    0.000000      0.637175                 0.002099   0.637175
+
+=== tau = 0.2 ===
+ tau            rule  prospective           method  blocks  admitted_frac  breaches  breach_rate_among_admitted  mean_utility  mean_realized_violation  mean_ndcg
+ 0.2     certificate         True              CWC      45       0.000000         0                    0.000000      0.000000                 0.007169   0.639131
+ 0.2 eb-nocorrection         True              CWC      45       0.000000         0                    0.000000      0.000000                 0.007169   0.639131
+ 0.2 eb-nocorrection         True   CostGreedy-cal      45       0.000000         0                    0.000000      0.000000                 0.002775   0.636938
+ 0.2 eb-nocorrection         True Static-ColBERTv2      45       0.000000         0                    0.000000      0.000000                 0.583348   0.583948
+ 0.2 eb-nocorrection         True        Static-E5      45       0.066667         0                    0.000000      0.021800                 0.000000   0.541808
+ 0.2 eb-nocorrection         True     Static-Qwen3      45       0.044444         0                    0.000000      0.014463                 0.088620   0.638287
+ 0.2 eb-nocorrection         True    Static-SPLADE      45       0.066667         0                    0.000000      0.022177                 0.000206   0.605017
+ 0.2 eb-nocorrection         True   StaticBest-cal      45       0.066667         0                    0.000000      0.021931                 0.002099   0.637175
+ 0.2  point-estimate         True              CWC      45       1.000000         0                    0.000000      0.639131                 0.007169   0.639131
+ 0.2  point-estimate         True   CostGreedy-cal      45       1.000000         0                    0.000000      0.636938                 0.002775   0.636938
+ 0.2  point-estimate         True Static-ColBERTv2      45       0.111111         1                    0.200000      0.030801                 0.583348   0.583948
+ 0.2  point-estimate         True        Static-E5      45       1.000000         0                    0.000000      0.541808                 0.000000   0.541808
+ 0.2  point-estimate         True     Static-Qwen3      45       0.844444         3                    0.078947      0.380369                 0.088620   0.638287
+ 0.2  point-estimate         True    Static-SPLADE      45       1.000000         0                    0.000000      0.605017                 0.000206   0.605017
+ 0.2  point-estimate         True   StaticBest-cal      45       1.000000         0                    0.000000      0.637175                 0.002099   0.637175
+ 0.2  posthoc-oracle        False              CWC      45       1.000000         0                    0.000000      0.639131                 0.007169   0.639131
+ 0.2  posthoc-oracle        False   CostGreedy-cal      45       1.000000         0                    0.000000      0.636938                 0.002775   0.636938
+ 0.2  posthoc-oracle        False Static-ColBERTv2      45       0.111111         0                    0.000000      0.066277                 0.583348   0.583948
+ 0.2  posthoc-oracle        False        Static-E5      45       1.000000         0                    0.000000      0.541808                 0.000000   0.541808
+ 0.2  posthoc-oracle        False     Static-Qwen3      45       0.777778         0                    0.000000      0.447035                 0.088620   0.638287
+ 0.2  posthoc-oracle        False    Static-SPLADE      45       1.000000         0                    0.000000      0.605017                 0.000206   0.605017
+ 0.2  posthoc-oracle        False   StaticBest-cal      45       1.000000         0                    0.000000      0.637175                 0.002099   0.637175

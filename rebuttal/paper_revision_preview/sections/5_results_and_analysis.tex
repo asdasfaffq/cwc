@@ -1,0 +1,158 @@
+\section{Results and Analysis}
+\label{sec:results}
+
+\parhead{Reading guide and canonical result.}
+We lead with the canonical result and the certificate, then demote corroborating studies. The headline is the $45$-block multi-dataset rank gate (Section~\ref{sec:results-rank}; 3 datasets, 4 static + 2 calibration-aware baselines), where \CWC{} ranks first and beats all four SOTA operators while tying the two calibration-aware selectors. The certificate (Sections~\ref{sec:results-cert}--\ref{sec:results-scale}) then upper-bounds the realized SLO-violation rate and tightens with scale, and the SLA admission-control study (Section~\ref{subsec:admission}) reuses the same $45$ blocks and pool. A single-collection NFCorpus pilot (Section~\ref{sec:results-pilot}, $30$ blocks) and a $360$-block cross-dataset audit (Section~\ref{sec:results-audit}) close the section as corroborating robustness, not the headline. Throughout, \CWC{} denotes \WCR{} augmented with the selection-split abstain rule of Section~\ref{sec:certificate}; when no cell abstains, \CWC{}$\equiv$\WCR{}, so the un-guarded \WCR{} numbers double as an ablation of the abstain mechanism.
+
+\subsection{Average-rank comparison against SOTA operators}
+\label{sec:results-rank}
+
+We open with the headline utility result, a standard average-rank test on the constrained objective; the certificate that backs these deployment decisions follows in Sections~\ref{sec:results-cert}--\ref{sec:results-scale}. Over $45$ complete blocks (three datasets, three budgets at $80$--$160$\,ms, five seeds) under the bounded workload shift, we rank every method per block by mean constrained utility (nDCG when SLO-feasible, penalty otherwise) and compare \CWC{} against four SOTA retrieval operators (Qwen3-Embedding, SPLADE, ColBERTv2, E5) and two calibration-aware selectors. Table~\ref{tab:rank} reports the average rank of every method in the pool; a Friedman test rejects equality ($\chi^2{=}135.4$, $p=9.3\times10^{-27}$). For self-containedness, the full configuration (reproduced from the merged action rows, no value hand-set) is: SciFact+FiQA+NFCorpus ($1{,}271$ queries, $2{,}585$ workload items) with real Qwen3-Embedding-0.6B, SPLADE, and ColBERTv2; the $45$ blocks are $3$ datasets $\times$ budgets $\{80,120,160\}$\,ms $\times$ seeds $\{13,17,23,29,31\}$, with selectivities $\{1.0,0.5,0.1\}$ as item strata and a selectivity-biased train/eval coin ($p_{\mathrm{train}}{=}0.8/0.5/0.2$); $K{=}4$ main cells (sweep $\{3,4,6,8,12\}$), a $50/50$ selection/calibration split, the constrained-utility objective (nDCG if feasible, else penalty), and the seven methods listed above tested by per-block rank with Friedman + one-sided Holm--Wilcoxon.
+
+\begin{table}[t]
+\centering
+\caption{Average rank (lower is better) over $45$ blocks on SciFact+FiQA+NFCorpus with real external operators. \CWC{} is rank-1 and significantly beats all four SOTA operators under a one-sided Holm-corrected Wilcoxon test; it is statistically tied with the two calibration-aware selectors. ``Win blocks'' is the number of blocks (out of $45$) in which \CWC{} has strictly higher mean constrained utility than the baseline in that row.}
+\label{tab:rank}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lccc}
+\toprule
+Method & Avg.\ rank & Holm $p$ vs.\ \CWC{} & win blocks \\
+\midrule
+\CWC{} (certified) & \textbf{2.511} & -- & -- \\
+Static-SPLADE (SOTA) & 3.067 & $1.5\times10^{-2}$ & 26/45 \\
+Static-Qwen3 (SOTA) & 3.511 & $8.1\times10^{-4}$ & 25/45 \\
+StaticBest-cal & 3.622 & $2.8\times10^{-1}$ (n.s.) & 15/45 \\
+CostGreedy-cal & 3.622 & $1.1\times10^{-1}$ (n.s.) & 19/45 \\
+Static-E5 (SOTA) & 4.667 & $1.9\times10^{-8}$ & 42/45 \\
+Static-ColBERTv2 (SOTA) & 7.000 & $1.7\times10^{-13}$ & 45/45 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\CWC{} attains average rank $2.511$, first among all seven methods, and we read this conservatively. Against the methodologically matched competitors---the two calibration-aware selectors, which also avoid SLO violations by construction---\CWC{} is \emph{statistically tied in blockwise rank under the constrained-utility objective} (one-sided Holm--Wilcoxon on per-block rank differences, $p{=}0.28$ and $p{=}0.11$), consistent with the audit of Section~\ref{sec:results-audit}; the defensible claim is \emph{blockwise-rank parity plus an auditable guarantee}, not a tested utility-value win over comparable selectors. Against the four strong static retrievers used directly \CWC{} is Holm-significantly better (winning $25$--$45$ of $45$ blocks), but only as a sanity check that a strong retriever used statically is not a substitute for certified selection. The genuine differentiator over the matched selectors is the certificate of Section~\ref{sec:certificate}: the same utility with a distribution-free guarantee none of the baselines provides, at $\approx$two orders of magnitude fewer realized violations. Both numbers come from one stated setting---the combined SciFact+FiQA+NFCorpus workload at the binding $80$\,ms budget with $K{=}4$, averaged over the five window-assignment seeds---and are the \texttt{viol.\ \CWC{}} and \texttt{viol.\ StaticBest-cal} entries of Table~\ref{tab:cert-scale} ($0.001$ vs.\ $0.112$); no other configuration is pooled into them.
+
+% [revision] summary sentence removed: it restated the preceding paragraph, and the
+% space now carries the provenance and terminology text requested in R1-D6/D7/D11.
+
+\subsection{Certified behavior under bounded workload shift}
+\label{sec:results-cert}
+
+We now test the certificate of Proposition~\ref{prop:cert} and the guarded compiler \CWC{}. We induce a bounded covariate shift between the train and eval windows on the NFCorpus action rows by assigning each (query, selectivity) item to the train or eval window with a selectivity-biased coin: low-selectivity (fast) items skew toward training and high-selectivity (slow) items skew toward evaluation. Both windows therefore contain all strata in different proportions, so the windows overlap and the per-cell density ratio is bounded; a hard partition would instead produce a singular shift for which no method can certify and the bound correctly returns the trivial value one. The loss is the SLO-violation indicator $L=\mathbf{1}\{\latency>B\}$. We use $K{=}3$ cells, $\delta{=}0.1$, sample-split selection/calibration, a within-cell density-ratio estimate for $\Gamma_\cell$, and report means over five window-assignment seeds; $\Rcert$ is the certified bound of \eqref{eq:cert}.
+
+On this NFCorpus precursor ($K{=}3$, mean over 5 seeds; $\Rcert{=}0.951$ at all budgets) the run reports three findings. First, \emph{the plug-in bound empirically upper-bounds the realized violation in every run}: across all 60 evaluated runs (cell counts $K\in\{3,4\}$, five seeds, three budgets, including a $1.5{\times}$ $\Gamma_\cell$-misspecification stress test) the certified bound exceeds the realized eval-window violation, with minimum slack above $0.43$. We reserve ``theorem-valid'' for a true $\Gamma_\cell$; the headline bound uses a plug-in $\Gamma_\cell$ (empirically upper-bounding here), and only the UCB-$\rho$ variant of Remark~\ref{rem:rho-ucb} is end-to-end. No static or per-query baseline supplies any such guarantee. Second, \emph{the guard controls violation under shift}: at the binding budgets \CWC{} lowers the realized SLO-violation rate relative to the strongest calibration-aware static selector (e.g.\ $0.361$ vs.\ $0.427$ at $80$\,ms and $0.020$ vs.\ $0.036$ at $120$\,ms) at comparable nDCG ($0.40$ vs.\ $0.40$ and $0.412$ vs.\ $0.417$ respectively), by abstaining to the selection-split feasibility-best fallback on $13$--$32\%$ of eval mass. At the loose budget ($160$\,ms) the workload is easy for all policies and no abstention is needed. Third, and consistent with the theory, \emph{the finite-sample bound is loose} on this small benchmark ($\Rcert\approx0.95$): the dominant term $\Gamma_\cell\sqrt{\log(K/\delta)/(2 n_\cell)}$ is large because per-cell calibration counts are only $n_\cell\approx18$--$50$ and the estimated within-cell shift budget is $\Gamma_\cell\approx4$--$6$. The bound becomes non-vacuous under milder shift, and the analysis predicts that larger workload windows are what tighten it. We therefore claim a \emph{distribution-free and operational} workload-window guarantee, not a tight numerical bound on a 100-query collection.
+
+\subsection{Scaling to a larger multi-dataset workload}
+\label{sec:results-scale}
+
+To test the prediction that larger workload windows tighten the certificate, we generate action rows on a combined workload of SciFact, FiQA, and NFCorpus using the same real external operators (Qwen3-Embedding, SPLADE, ColBERTv2). After retaining queries with complete action rows across all operators, this yields $1{,}271$ queries and $2{,}585$ workload items (a workload item is a query at a given selectivity), roughly $26\times$ the single-collection pilot, raising per-cell calibration counts to $n_\cell\approx100$--$430$. Table~\ref{tab:cert-scale} reports the same certified-shift protocol over $K\in\{3,4,6,8,12\}$.
+
+\begin{table}[t]
+\centering
+\caption{Certified compiler on the combined SciFact+FiQA+NFCorpus workload ($1{,}271$ queries, real external operators, mean over 5 seeds, budget $80$\,ms). $\Rcert$ is the certified bound; violation is the realized eval-window SLO-violation rate. The plug-in bound exceeds the realized violation in every run of both the $25$ budget-$80$ K-sweep runs (shown) and the $15$ main-$K{=}4$ runs across the three budgets.}
+\label{tab:cert-scale}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{cccccc}
+\toprule
+$K$ & $\Rcert$ & viol.\ \CWC{} & viol.\ StaticBest-cal & nDCG \CWC{} & nDCG static \\
+\midrule
+3  & 0.358 & \textbf{0.001} & 0.112 & 0.589 & 0.636 \\
+4  & \textbf{0.298} & \textbf{0.001} & 0.112 & 0.609 & 0.636 \\
+6  & 0.440 & \textbf{0.001} & 0.112 & 0.602 & 0.636 \\
+8  & 0.518 & \textbf{0.002} & 0.112 & 0.602 & 0.636 \\
+12 & 0.655 & \textbf{0.002} & 0.112 & 0.602 & 0.636 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+Three findings. (1) \emph{The certificate is now non-vacuous}: the worst-case Hoeffding $\Rcert$ ranges $0.298$--$0.655$ (min at $K{=}4$; empirical-Bernstein tightens $K{=}4$ to $0.263$), down from $\approx0.95$ on the single collection. (2) \emph{The policy strongly controls realized violation}: at $80$\,ms \CWC{} incurs $0.001$--$0.002$ vs.\ $0.112$ for the strongest calibration-aware static selector ($\approx$two orders of magnitude fewer) at a $\approx4\%$ nDCG cost ($0.609$ vs.\ $0.636$ at $K{=}4$). (3) \emph{The gap closes with scale} (Figure~\ref{fig:scaling}): on the canonical workload the bound ($\approx0.30$) still exceeds static's realized $0.112$ (a residual $\Gamma_\cell\hat L_\cell$ term, $\Gamma_\cell\approx3$--$4.4$), but a five-dataset probe (ArguAna+SciDocs, $3{,}654$ queries, $n_\cell$ tripled) drives the plug-in bound to $\Rcert{=}0.041$/$0.061$ at $K{=}2$/$3$, below that probe's static realized rate ($0.063$), following the $1/\sqrt{n_\cell}$ law: a worst-case bound dipping under an empirical rate, an operational milestone, not a certified-dominance theorem. The UCB-$\Gamma$ variant stays vacuous even there; the bound exceeds the realized violation in every run.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.78\columnwidth]{scaling_curve.pdf}
+  \caption{Certificate tightening with per-cell calibration count $n_\cell$ ($80$\,ms, empirical-Bernstein, plug-in $\Gamma_\cell$). The 3-dataset subsample ($K{=}4$) and the 5-dataset $K$-sweep probe both follow the predicted $\propto 1/\sqrt{n_\cell}$ shrinkage; at large $n_\cell$ the plug-in bound falls below the static realized violation rate (dashed) while staying valid (bound $\ge$ realized). The 5-dataset series is a scoped probe (single budget, ColBERT dropped for SciDocs), not a like-for-like extension of Table~\ref{tab:cert-scale}.}
+  \label{fig:scaling}
+\end{figure}
+
+\parhead{What the bound certifies.} $\Rcert$ is a distribution-free \emph{worst-case ceiling} (violation rate $\le\Rcert$ w.p.\ $1-\delta$ under bounded shift), the form an SLA needs (it holds even under adversarial-within-budget shift), not an estimate of the realized rate ($<1\%$); its looseness is the price of that guarantee at finite samples and shrinks with larger windows ($\approx0.95\to0.30\to0.04$ above).
+
+\parhead{Sensitivity certificate: the tolerable shift budget.} Because the plug-in $\Gamma_\cell$ is the contract's one unverified input (Section~\ref{sec:certificate}), we turn it into an operational statement. Sweeping the true budget as a multiple of $\hat\Gamma\!\approx\!3.0$ ($\Rcert$ is linear in $\Gamma_\cell$), Table~\ref{tab:gamma-sens} reports, for each SLA level $\tau$, the largest true budget $\Gamma^\star$ keeping the certificate valid, a conditional SLA: \emph{if the true shift stays below $\Gamma^\star$, the window violation rate is at most $\tau$.} For $\tau{=}0.5$ this tolerates $\Gamma^\star\!\approx\!6.7$ ($2.2\times$ the estimate), so the certificate degrades gracefully and the operator audits the margin rather than trusting a point estimate (realized violation stays $\approx0.001$).
+
+\begin{table}[t]
+\centering
+\caption{Sensitivity certificate at the $80$\,ms budget, $K{=}4$. $\Rcert$ as a function of the true per-cell shift budget $\Gamma$ (as a multiple of the plug-in $\hat\Gamma\!\approx\!3.0$); $\Gamma^\star_\tau$ is the largest true budget keeping $\Rcert\le\tau$. The plug-in bound exceeds the realized violation at every row. Realized violation is $\approx0.001$ throughout.}
+\label{tab:gamma-sens}
+\footnotesize
+\begin{tabular}{cccc}
+\toprule
+$\Gamma/\hat\Gamma$ & true $\Gamma$ & $\Rcert$ & valid \\
+\midrule
+0.5 & 1.50 & 0.155 & \checkmark \\
+1.0 & 3.01 & 0.298 & \checkmark \\
+1.5 & 4.51 & 0.393 & \checkmark \\
+2.0 & 6.02 & 0.467 & \checkmark \\
+2.5 & 7.52 & 0.541 & \checkmark \\
+3.0 & 9.03 & 0.616 & \checkmark \\
+4.0 & 12.0 & 0.764 & \checkmark \\
+\midrule
+\multicolumn{4}{l}{Tolerable budget: $\Gamma^\star_{0.3}{\approx}3.0$,\quad $\Gamma^\star_{0.5}{\approx}6.7$,\quad $\Gamma^\star_{0.7}{\approx}10.7$} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\parhead{Is the gain just the wrapper?} A natural worry is that \CWC{}'s edge comes from the abstain/certificate \emph{wrapper} rather than from workload cells. We test this by running \CWC{} with a single cell ($K{=}1$): it binds the one global constrained-utility-best plan and applies the same abstention and certificate; equivalently, the strongest static action wrapped in our machinery. At $80$\,ms this $K{=}1$ variant abstains on the entire window and retreats to the feasibility-best fallback (nDCG $0.586$, $\Rcert{=}0.157$), whereas full \CWC{} ($K{=}4$) places safe high-quality plans per cell, needs no abstention, and reaches nDCG $0.604$ at comparable realized violation ($\approx0.001$). The workload cells, not the wrapper, are what preserve quality under the SLO.
+
+\subsection{Application: SLA admission control}
+\label{subsec:admission}
+
+The certificate is meant to be used, not just reported. We close the empirical section with a deployment scenario that turns the SLO-violation rate into the deciding criterion. An operator serving workload windows under a service-level agreement (SLA) admits a window's deployed plan only if its realized eval-window SLO-violation rate meets the budget $\tau$; an admitted window earns its retrieval quality, a window that breaches the SLA earns none (it must fall back, and the quality gain is forfeited). The corresponding \emph{admission utility} of a method on a block is therefore its mean nDCG@10 if the block's realized violation is $\le\tau$ and $0$ otherwise. We evaluate this on \emph{exactly the canonical $45$-block study and the same seven-method pool as Table~\ref{tab:rank}}---the four SOTA operators (Qwen3-Embedding, SPLADE, ColBERTv2, E5) and the two calibration-aware selectors---so the comparison is apples-to-apples with the headline gate; only the per-block objective changes from constrained utility to SLA admission utility. We rank the seven methods per block and apply the same one-sided Holm-corrected Wilcoxon test as in Section~\ref{sec:results-rank}. Table~\ref{tab:admission} reports the resulting admission utilities, ranks and realized violation rates.
+
+\begin{table}[t]
+\centering
+\caption{SLA admission control on the canonical $45$-block study at a $\tau{=}10\%$ SLA, over the \emph{same} seven-method pool as Table~\ref{tab:rank}. Admission utility is mean nDCG@10 if the block's realized violation rate is $\le\tau$, else $0$; lower rank is better, ``viol'' is the mean realized violation rate. \CWC{} ranks first and Holm-beats all six baselines (one-sided Wilcoxon; Friedman $\chi^2{=}146.4$, $p{=}4.4\times10^{-29}$); no value is hand-set.}
+\label{tab:admission}
+\footnotesize
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcccc}
+\toprule
+Method & viol & nDCG@10 & avg.\ rank & Holm $p$ vs \CWC{} \\
+\midrule
+\CWC{} (ours) & 0.007 & \textbf{0.641} & \textbf{1.44} & --- \\
+CostGreedy-cal & 0.003 & 0.637 & 2.96 & $7.9\times10^{-5}$ \\
+Static-SPLADE & 0.000 & 0.605 & 3.73 & $6.2\times10^{-5}$ \\
+Static-Qwen3 & 0.089 & 0.638 & 4.13 & $2.9\times10^{-5}$ \\
+StaticBest-cal & 0.002 & 0.637 & 4.29 & $7.9\times10^{-5}$ \\
+Static-E5 & 0.000 & 0.542 & 4.67 & $1.9\times10^{-8}$ \\
+Static-ColBERTv2 & 0.583 & 0.584 & 6.78 & $1.5\times10^{-8}$ \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+Under this deployment objective \CWC{} is \emph{average-rank first} ($1.44$ over $45$ blocks) and Holm-beats all six baselines, including both calibration-aware selectors ($p\le8\times10^{-5}$), with a positive mean-utility margin against every one. The mechanism is the certificate's design goal: \CWC{} pairs the pool's highest quality (nDCG@10 $0.641$) with a low realized violation ($0.007$), so its windows are almost always admitted, whereas Static-Qwen3 has comparable quality ($0.638$) but $0.089$ violation and is rejected on tight-budget windows, and the calibration-aware selectors stay feasible only at lower quality. So the selectors that merely \emph{tie} \CWC{} on the unconstrained objective (Table~\ref{tab:rank}) \emph{separate} from it once the SLA decides. The boundary is honest: at a tighter $\tau{=}5\%$ SLA \CWC{} stays rank-first ($1.71$) but its edge narrows to borderline ($p\approx0.048$) and is no longer a mean-utility win (\CWC{} is itself occasionally rejected at $5\%$); the advantage is clearest at moderate SLAs.
+
+\subsection{Systems overhead on a real hybrid stack}
+\label{sec:results-overhead}
+To confirm \CWC{} is a lightweight optimizer layer, we integrate it with a real hybrid-search stack---a BM25 index, a dense HNSW index (HNSWlib over E5-base), and a cross-encoder reranker (MiniLM)---over NFCorpus ($3{,}633$ docs, $323$ queries) on the RTX~4090 of Section~\ref{sec:protocol}. Per-query plan latencies span $0.16$\,ms (dense HNSW) to $13.6$\,ms (dense$+$rerank@20); every latency in this subsection is a wall-clock mean over the $323$ NFCorpus test queries, measured with \texttt{time.perf\_counter} on the single RTX~4090 of Section~\ref{sec:protocol} after a five-query warm-up, with all indexes resident. Against this, \CWC{} adds a one-time \emph{compile} of $47.6$\,ms per window ($\approx0.15$\,ms amortized/query) and $0.17$\,ms/query \emph{routing} (cell assignment $+$ dispatch); telemetry probes cost $2.5$\,ms/query and reuse the retrieval scores. The optimizer layer is thus sub-millisecond per query and negligible against retrieval and reranking, so the certified gains come at essentially no serving cost.
+
+\subsection{NFCorpus pilot (single-collection, preliminary)}
+\label{sec:results-pilot}
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{workload_compiler_evidence.pdf}
+  \caption{\emph{Pilot illustration} (single-collection NFCorpus, $30$ blocks; preliminary, not the headline). (a) Average rank (lower better; error bars are the SEM of block-level ranks; Holm-adjusted tests vs.\ baselines). (b) Mean constrained score under the same gate. (c) Cell-count sensitivity: filled markers pass the Rank-1 gate; the elbow selector picks $k{=}5$ and passes, silhouette is a negative control. (d) Feature-family ablation at $k{=}6$: removing retrieval-telemetry families causes gate failures, while full telemetry stays first-ranked.}
+  \label{fig:evidence}
+\end{figure*}
+
+This pilot was run \emph{first} chronologically and motivated the design; we report it \emph{after} the canonical multi-dataset result because it uses a single collection and a local action catalog, and so is the weaker evidence of the two. Readers who prefer development order may read this subsection before Section~\ref{sec:results-rank}. As an initial single-collection study, \WCR{} passes the 30-block Rank-1 gate (ranks over a pool of $26$ methods; Figure~\ref{fig:evidence}a). The candidate reaches average rank $3.72$, ahead of QueryOnly-RF ($5.82$), CostGreedy-cal and StaticBest-cal ($6.12$), and ScalarTelemetry-RF ($7.87$); Holm-adjusted $p$-values are $0.013$ against QueryOnly-RF, $0.012$ against the two calibration-aware selectors, and $\le1.6\times10^{-3}$ against every static operator. The rank result reflects higher constrained utility, not only a favorable rank statistic (Figure~\ref{fig:evidence}b): \WCR{} has mean constrained score $0.3537$, satisfaction $0.9986$, latency $14.27$\,ms, and regret $0.0488$, dominating QueryOnly-RF on score and satisfaction and ScalarTelemetry-RF (lower latency but lower score, higher regret) on the objective.
+
+\subsection{Pilot ablations, controls, and stability}
+
+\emph{Cell count} (Figure~\ref{fig:evidence}c). The result is not tied to $k{=}6$: in the $k$-sweep $k{=}5$ also passes (rank $3.78$, score $0.3536$, satisfaction $0.9972$, regret $0.0489$), and the unsupervised elbow selector picks $k{=}5$ in all $30$ blocks and passes (Holm $p{=}0.014$ vs.\ QueryOnly-RF), reducing cherry-pick risk; the silhouette selector fails (rank $4.35$, three failed comparisons), marking the boundary that unsupervised $k$ selection helps only when the rule matches the constrained-utility geometry. 
+
+\parhead{Feature families and controls} (Figure~\ref{fig:evidence}d). Full telemetry passes with zero failures; removing dense features weakens but does not destroy the signal (rank $5.52$, four failures); metadata-only, no-BM25, no-probe, no-overlap, and query-only all fail (query-only rank $6.38$, nine failures; metadata-only collapses to $k{=}1$). Train-only ($4.75$), random ($7.32$), and query-only ($6.38$) $k{=}6$ controls all fail, confirming the benefit comes from unlabeled workload structure plus retrieval telemetry, not random partitioning or query-only routing. \emph{Stability report} (the diagnostic of Section~\ref{subsec:frontier}, distinct from the certificate of Section~\ref{sec:certificate}): across $180$ cells and $1290$ decisions the mean bootstrap support is $0.813$, but the weak slice (selectivity $0.5$, $80$\,ms) drops to $0.610$ with risky-cell share $0.533$, and flagged queries have higher regret ($0.0695$ vs.\ $0.0329$), so it isolates the fragile part of the frontier. \emph{External operators.} Static use of the strong imported operators is not competitive under the constrained objective (SPLADE-pre rank $12.0$, Qwen3-pre $17.1$, ColBERTv2-pre $21.0$): a strong retriever used statically is not the same as optimizing the physical plan under filter and latency constraints, so the pilot claim is optimizer-level, not ``\WCR{} is the strongest retriever''.
+
+\subsection{Cross-Dataset Robustness Audit}
+\label{sec:results-audit}
+
+A secondary local-catalog robustness audit over SciFact, NFCorpus, and FiQA ($360$ selectivity-budget-seed blocks, pool of $16$ methods) corroborates the main result: \WCR{} obtains the best average rank ($4.16$), Holm-significantly beating QueryOnly-RF ($5.05$, $p{=}5.1{\times}10^{-8}$), CostGreedy-cal ($5.61$), ScalarTelemetry-RF ($6.20$), and every fixed static operator ($p\le3.9{\times}10^{-14}$). As in the canonical study, the comparison against StaticBest-cal ($4.27$) is \emph{not} significant ($p{=}0.185$): the audit supports robustness beyond NFCorpus but not universal dominance over every calibration-aware selector.
+

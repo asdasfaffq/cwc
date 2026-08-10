@@ -1,0 +1,67 @@
+\section{\CWC{}: Workload-Window Plan Compiler}
+\label{sec:optimizer}
+
+This section describes the compiler core of \CWC{} (its un-guarded form \WCR{}); Section~\ref{sec:certificate} adds the abstain rule and certificate that complete \CWC{}. It is deliberately simple: the paper tests whether workload-level physical-plan compilation carries signal, not whether a complex controller can overfit a small benchmark. The implementation has four stages, shown in Figure~\ref{fig:framework}: construct an action catalog, compute workload telemetry, partition the workload, and bind/certify cell actions.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.95\textwidth]{cwc_framework}
+  \caption{The \CWC{} pipeline. An unlabeled evaluation window and a labeled training window over a fixed action catalog are embedded into $K$ plan cells; the \emph{selection} split binds each cell's plan (or abstains to a feasibility-best fallback), the \emph{calibration} split estimates $\hat L_\cell$, and the eval window fixes the masses $m_\cell/M$. A change of measure under $\Gamma_\cell$ with one-sided Hoeffding and a union over $K$ cells gives the distribution-free certificate $\Rcert$ on the eval-window SLO-violation rate.}
+  \label{fig:framework}
+\end{figure*}
+
+\subsection{Physical Action Catalog and Telemetry}
+
+The action catalog treats retrieval systems as executable physical actions. In the main external-operator gate, $\A$ includes BM25 pre-filtering and post-filtering, dense retrieval, E5-base dense retrieval \cite{wang2022e5}, reciprocal-rank fusion \cite{cormack2009rrf}, weighted fusion, rerank depth 20, and external rankings imported from SPLADE \cite{formal2021splade}, ColBERTv2 \cite{santhanam2021colbertv2}, and Qwen3-Embedding-0.6B \cite{zhang2025qwen3embedding}. Static use of each action is also evaluated as a baseline.
+
+The full telemetry vector contains four feature families: query/constraint features (query length, digit ratio, filter selectivity, latency budget); candidate-set features (candidate count); lexical and dense probe features (BM25 and dense top score, entropy, and gap); and interaction/cost features (branch overlap, probe latency). Feature ablations (Section~\ref{sec:results}) remove these families to test that the compiler uses retrieval telemetry, not only query metadata.
+
+\subsection{Cell Construction}
+
+Per block, \WCR{} computes one telemetry vector $z(\q)$ per query, standardizes them using the combined-window mean and variance, and runs k-means ($K$ clusters, 20 restarts, block seed). The main result uses $K{=}6$; robustness runs evaluate $K{=}5$, a $k$-sweep, and two unsupervised selectors (an elbow selector at maximum distance from the log-inertia chord, and the standard silhouette score). Using evaluation telemetry here is a workload-aware systems choice---the compiler observes the current window before execution, as an optimizer observes a query before choosing a plan---but it never observes evaluation relevance labels.
+
+We distinguish two regimes that differ only in this clustering/binding step. The exploratory \WCR{} used in the pilot and audit (Sections~\ref{sec:results-pilot},~\ref{sec:results-audit}) clusters on the combined train+evaluation window and binds on the same training rows; it makes optimizer-level claims only and does \emph{not} invoke the certificate, because Assumption~\ref{ass:cert} (calibration independence) is not satisfied. The certified \CWC{} of Section~\ref{sec:certificate} instead uses an independent selection/calibration split, which is what licenses Proposition~\ref{prop:cert}; all certificate results (Sections~\ref{sec:results-cert}--\ref{sec:results-scale}) and the canonical rank gate (Section~\ref{sec:results-rank}) use this split.
+
+\subsection{Cell Binding and Fallback}
+
+For each cell, \WCR{} selects the action with the highest mean training constrained utility among training queries assigned to that cell. Ties are resolved deterministically by the sorted action order. If a cell has no training queries, \WCR{} falls back to the globally best training action under the same scope. This fallback is important for reproducibility because transductive clustering can create evaluation-only cells.
+
+Algorithm~\ref{alg:wcr} gives the complete procedure.
+
+\begin{algorithm}[t]
+\caption{\WCR{}: risk-aware workload compilation (the exploratory regime). The certified variant \CWC{} replaces the single train set used in lines~7--8 by the selection/calibration split of Section~\ref{sec:protocol} so that Assumption~\ref{ass:cert}(iii) holds; all other steps are unchanged.}
+\label{alg:wcr}
+\begin{algorithmic}[1]
+\REQUIRE $\W_{\mathrm{tr}}$, $\W_{\mathrm{ev}}$, action catalog $\A$, budget $B$, filter $F$, feature map $\features$, cell count or selector $K$, bootstrap iterations $B_{\mathrm{boot}}$
+\STATE Compute query telemetry $z(\q)=\features(\q,\W_{\mathrm{tr}}\cup\W_{\mathrm{ev}})$ for all train and evaluation queries
+\STATE Standardize all telemetry vectors in the workload window
+\STATE Cluster train and evaluation telemetry into cells $\C=\{\cell_1,\ldots,\cell_K\}$
+\STATE Let $\plan_{\mathrm{global}}$ be the best training action by mean constrained utility
+\FOR{each cell $\cell\in\C$}
+  \IF{$\cell\cap\W_{\mathrm{tr}}\ne\emptyset$}
+    \STATE $\pi(\cell)\leftarrow\argmax_{\plan\in\A}\sum_{\q\in\cell\cap\W_{\mathrm{tr}}}\utility(\q,\plan;B,F)$
+  \ELSE
+    \STATE $\pi(\cell)\leftarrow\plan_{\mathrm{global}}$
+  \ENDIF
+  \STATE Compute frontier statistics $\mathcal{P}(\cell)$ and action responses $\mathcal{R}(\cell)$
+  \STATE Bootstrap $\cell\cap\W_{\mathrm{tr}}$ for $B_{\mathrm{boot}}$ iterations to compute stability report $\mathcal{G}(\cell)$
+\ENDFOR
+\FOR{each $\q\in\W_{\mathrm{ev}}$}
+  \STATE Deploy $\rho_{\C,\pi}(\q)=\pi(\cell_{\gamma(\q)})$
+\ENDFOR
+\RETURN $\D_{\W}=(\C,\mathcal{P},\mathcal{R},\mathcal{G})$ and deployed actions
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Plan Frontier and Empirical Stability Report}
+\label{subsec:frontier}
+
+The plan frontier is an empirical audit object, not a second optimizer: per cell, \WCR{} records each action's mean constrained utility, satisfaction, and latency on the cell's training queries, the selected-plan margin (gap to the second-best action), and the frontier width (actions within $\epsilon{=}0.01$ of the best), identifying cells where several plans are close. The empirical stability report $\mathcal{G}$ is a diagnostic, distinct from the distribution-free \emph{certificate} of Section~\ref{sec:certificate} (for which we reserve the word ``certificate''); it is not a correctness proof or a promise of future optimality. It reports bootstrap support (fraction of $B_{\mathrm{boot}}{=}200$ resampled train-cell workloads reselecting the deployed action), the margin, and a risky flag (support $<\tau_s{=}0.70$ or margin $<\tau_m{=}0.02$). These thresholds feed only the stability table; the main Rank-1 decision does not tune them.
+
+The response surface $\mathcal{R}$ stores counterfactual action responses for diagnosis; we do not cluster on it directly (pure counterfactual clustering failed the Rank-1 gate in our negative variants), keeping the telemetry compiler as the engine while still exposing counterfactual information.
+
+\subsection{Why This Is Not a Router}
+
+\WCR{} differs from a per-query router in three ways: its observable unit is a workload window rather than an isolated query; its decision object is a cell-level physical design $\D_{\W}=(\C,\mathcal{P},\mathcal{R},\mathcal{G})$ that reuses plans over stable workload regions instead of deciding each query independently; and it returns frontier and stability flags alongside the deployed actions. These properties make it closer to a physical-plan compiler than to a classifier over retriever names.
+
+The current implementation uses k-means and empirical cell binding as one instantiation; the broader abstraction is the compiled design object, in which alternative partitioners or binding rules could be substituted while preserving the workload-level optimizer contract.

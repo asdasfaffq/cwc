@@ -1,0 +1,12 @@
+method,display,avg_rank,sem
+ParetoProbe-Sys,Workload compiler,3.716666666666667,0.49866680496648147
+QueryOnly-RF,Query-only RF,5.816666666666666,0.5800729905188672
+CostGreedy-cal,Cost greedy,6.116666666666666,0.6471348583596889
+StaticBest-cal,Static best,6.116666666666666,0.6471348583596889
+ScalarTelemetry-RF,Scalar telemetry RF,7.866666666666666,0.7345861816271443
+Static-bm25_pre,BM25 static,9.266666666666667,1.0661277374172484
+Static-dense_e5_base_v2_pre,E5-base static,9.866666666666667,0.9869648508727338
+Static-rerank_depth_20,Rerank depth 20,10.566666666666666,0.6502578327418639
+Static-external_splade_cocondenser_ensembledistil_pre,SPLADE static,12.0,1.2918844829323475
+Static-external_qwen3_embedding_06b_pre,Qwen static,17.066666666666666,1.8009788738945716
+Static-external_colbertv2_pre,ColBERTv2 static,21.033333333333335,0.7693605843895699

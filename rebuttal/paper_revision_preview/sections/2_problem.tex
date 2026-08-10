@@ -1,0 +1,68 @@
+\section{Problem and Optimizer Model}
+\label{sec:problem}
+
+Hybrid retrieval exposes a catalog of executable physical actions rather than a single scoring function. \emph{On the word ``telemetry''.} We use it for everything the optimizer may read \emph{before} committing a plan for the incoming window, which is of two kinds: (i) quantities computed or estimated up front for the query at hand---query-derived features, filter-survival estimates, and cheap retrieval-probe outputs; and (ii) quantities genuinely observed from execution, such as latency, which are available for the labeled historical window but never for the window being compiled. Compiling the incoming window uses (i) on that window plus (i)--(ii) on history; no measurement of the incoming window's own execution is ever used. \emph{Notation:} $\W_{\mathrm{tr}},\W_{\mathrm{ev}}$ are the training and (unlabeled) evaluation workload windows; $\A$ the finite catalog of physical actions; $\features(\q,\W)$ the observable telemetry for query $\q$ computed in the context of the window $\W\in\{\W_{\mathrm{tr}},\W_{\mathrm{ev}}\}$ that contains it (the window enters only through window-level statistics such as filter survival and catalog state); $B,F$ the latency budget and metadata-filter setting; $\score$, $\latency$, and $\utility(\q,\plan;B,F)$ the ranking score, latency, and constrained utility of action $\plan$; and $\C,\gamma,\pi$ and $\D_{\W}$ the cell partition, assignment map, cell-plan binding, and compiled workload design.
+
+Let $\W_{\mathrm{tr}}=\{\q_i\}_{i=1}^{n_{\mathrm{tr}}}$ be a labeled training workload and let $\W_{\mathrm{ev}}=\{\q_i\}_{i=1}^{n_{\mathrm{ev}}}$ be an unlabeled evaluation workload window. Let $\A$ be a finite catalog of physical actions. An action $\plan\in\A$ may be BM25 with pre-filtering, BM25 with post-filtering, a dense vector plan, reciprocal-rank fusion, an imported external ranking, or a reranking-depth plan. We use ``physical action'' consistently for these executable plans.
+
+Each query has an observable telemetry vector $\features(\q,\W)\in\R^d$. Telemetry can include query-derived features, cheap retrieval-probe statistics, branch overlap, score concentration, filter survival estimates, and latency observations. Evaluation relevance labels are not observable when compiling $\W_{\mathrm{ev}}$.
+
+\begin{definition}[Constrained utility and feasibility]
+For query $\q$, action $\plan$, latency budget $B$, filter setting $F$, and penalty $\lambda>0$, the constrained utility is
+\begin{equation}
+  \utility(\q,\plan;B,F)=
+  \score(\q,\plan;F)-\lambda[\latency(\q,\plan;F)-B]_+,
+\end{equation}
+where $[z]_+=\max\{0,z\}$. The feasibility indicator is
+\begin{equation}
+  \mathrm{feas}(\q,\plan;B,F)=\mathbf{1}\{\latency(\q,\plan;F)\le B\}.
+\end{equation}
+\end{definition}
+
+For an evaluated set $S$ and policy $\rho:S\rightarrow\A$, satisfaction and regret are
+\begin{align}
+  \mathrm{Sat}(S,\rho)&=\frac{1}{|S|}\sum_{\q\in S}\mathrm{feas}(\q,\rho(\q);B,F),\\
+  \mathrm{Reg}(S,\rho)&=\frac{1}{|S|}\sum_{\q\in S}
+  \left[\max_{\plan\in\A}\utility(\q,\plan;B,F)-\utility(\q,\rho(\q);B,F)\right].
+\end{align}
+These metrics separate systems feasibility from ranking quality: a policy cannot be considered successful if it wins only by violating the latency budget.
+
+\begin{definition}[Workload compilation]
+A workload compiler chooses a partition $\C=\{\cell_1,\ldots,\cell_K\}$ of $\W_{\mathrm{tr}}\cup\W_{\mathrm{ev}}$, an assignment map $\gamma(\q)\in\{1,\ldots,K\}$, and a binding $\pi:\C\rightarrow\A$. The deployed policy for an evaluation query is
+\begin{equation}
+  \rho_{\C,\pi}(\q)=\pi(\cell_{\gamma(\q)}),\qquad \q\in\W_{\mathrm{ev}}.
+\end{equation}
+\end{definition}
+
+The compiler may use relevance labels from $\W_{\mathrm{tr}}$ to bind actions, but it may use only telemetry from $\W_{\mathrm{ev}}$ when assigning evaluation queries to cells. For a fixed partition, the empirical binding objective is
+\begin{equation}
+\label{eq:cell-binding}
+  \pi^\star(\cell)=
+  \argmax_{\plan\in\A}
+  \sum_{\q\in\cell\cap\W_{\mathrm{tr}}}
+  \utility(\q,\plan;B,F).
+\end{equation}
+If a cell contains no training queries, the implementation falls back to the globally best training action under the same utility.
+
+\begin{definition}[Compiled workload design]
+The compiler returns
+\begin{equation}
+  \D_{\W}=(\C,\mathcal{P},\mathcal{R},\mathcal{G}).
+\end{equation}
+Here $\C$ is the workload-cell partition. $\mathcal{P}$ records, for each cell, the empirical plan frontier over ranking score, latency, and constrained utility. $\mathcal{R}$ records the estimated response of alternative actions in the cell. $\mathcal{G}$ records empirical stability statistics such as plan margin, bootstrap support, and risk flags (distinct from the distribution-free certificate of Section~\ref{sec:certificate}).
+\end{definition}
+
+\begin{assumption}[Workload-window observability]
+The system observes $\W_{\mathrm{ev}}$ and can compute telemetry $\features(\q,\W_{\mathrm{tr}}\cup\W_{\mathrm{ev}})$ before final plan execution. It does not observe evaluation relevance labels during compilation.
+\end{assumption}
+
+\begin{proposition}[Cell-wise empirical optimality]
+\label{prop:cell-optimality}
+For any fixed partition $\C$ and any cell $\cell$ with at least one training query, the binding rule in Eq.~\eqref{eq:cell-binding} maximizes empirical constrained utility among all policies that assign one constant action to every training query in $\cell$.
+\end{proposition}
+
+\begin{proof}
+For fixed $\C$ and $\cell$, a cell-constant policy is fully determined by its chosen action $\plan\in\A$. Eq.~\eqref{eq:cell-binding} enumerates the finite action catalog and selects the action with the largest empirical utility sum on $\cell\cap\W_{\mathrm{tr}}$. No other cell-constant action can have a larger empirical objective value by definition of the argmax.
+\end{proof}
+
+This proposition is intentionally modest. It does not claim optimality over all possible partitions or future workloads. It states the optimizer invariant used by \WCR{} once a workload partition is fixed. The empirical question in the rest of the paper is whether a telemetry-derived partition gives useful cell-constant physical designs under the constrained objective.

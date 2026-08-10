@@ -4,13 +4,17 @@ __pycache__/
 .venv/
 venv/
 
-# Heavy / withheld artifacts (do not commit)
+# Local scratch (not part of the release)
 data/*
 !data/sample/
-results/
+/results/
 external_rankings*/
-figures/
-*.pdf
+*.aux
+*.fls
+*.fdb_latexmk
+*.blg
+*.out
+build.log
 
 # OS / editor
 .DS_Store

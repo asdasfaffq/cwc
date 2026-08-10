@@ -1,0 +1,62 @@
+\section{Experimental Protocol}
+\label{sec:protocol}
+
+The evaluation is designed around a hard decision rule: the candidate must be statistically rank-first over complete workload blocks. This avoids selecting a method that wins one metric but loses the ranking comparison after accounting for budgets and filter conditions.
+
+\subsection{Workloads and Blocks}
+
+The \emph{pilot} gate (our earliest study; canonical evidence is the multi-dataset gate of Section~\ref{sec:results-rank}) uses a cached 100-query NFCorpus workload from BEIR \cite{thakur2021beir}. Metadata filters are deterministic recency and document-length buckets. A block is a tuple
+\begin{equation}
+  b=(\mathrm{dataset},B,F,\mathrm{seed}),
+\end{equation}
+where $B\in\{40,80\}$ ms is the latency budget and $F$ is a selectivity setting in $\{1.0,0.5,0.1\}$. For each seed, the workload qids are split into 50\% training and 50\% evaluation windows. The pilot and audit use this \emph{four-factor} block schema $(\mathrm{dataset},B,F,\mathrm{seed})$; the pilot uses seeds $\{13,17,23,29,31\}$, yielding 30 complete blocks. The canonical study of Section~\ref{sec:results-rank} instead uses a \emph{three-factor} block $(\mathrm{dataset},B,\mathrm{seed})$ with the three selectivities folded into each block as workload-item strata, so its block count is $3\text{ datasets}\times3\text{ budgets}\times5\text{ seeds}=45$; this is why selectivity appears as a block dimension in the pilot but as item strata in the canonical study.
+
+We separately run a cross-dataset local-catalog audit over SciFact, NFCorpus, and FiQA. This audit uses the shared cached pilot action rows rather than the external Qwen/SPLADE/ColBERT imports. It spans the same selectivities and budgets with 20 random seeds, yielding 360 complete blocks. Because the action catalog differs from the main external-operator gate, we report this audit as robustness evidence rather than as the primary claim.
+
+\subsection{Action Catalog and Baselines}
+
+Table~\ref{tab:catalog} summarizes the physical actions. All methods in a block read from the same cached action rows. For imported rankings, the ranking order is imported from the external model and then evaluated under the same filter and latency accounting used by the pilot framework. The claim is therefore policy quality under a fixed catalog, not an end-to-end systems benchmark of every external model's serving stack.
+
+\begin{table}[t]
+\centering
+\caption{Action catalog and accounting. ``Measured'' means produced by the local pilot; ``imported'' means ranking order is imported and evaluated in the shared constrained objective.}
+\label{tab:catalog}
+\footnotesize
+\begin{tabular}{lll}
+\toprule
+Action family & Source & Accounting \\
+\midrule
+BM25 pre/post & local & measured ranking/latency \\
+Dense/E5 & local & measured ranking/latency \\
+RRF/weighted fusion & local & measured derived plan \\
+Rerank depth 20 & local & measured pilot action \\
+SPLADE/Qwen/ColBERT & imported & shared objective rows \\
+Cross-dataset actions & local & shared pilot rows \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This distinction is central to the interpretation of the results. A fully executable serving benchmark would include model-specific inference, indexing, hardware, batching, and cache behavior for each external system. Our experiment instead asks whether a workload compiler can choose among already materialized physical actions under a common constrained objective. This isolates policy selection from model-serving engineering.
+
+The candidate is \WCR{} with workload cells and cell-level plan binding. The main configuration uses $K=6$ and the full telemetry feature set. Baselines include static execution of one physical action for the whole workload and four adaptive or calibrated selectors, named by the information each is allowed to use: \emph{QueryOnly-RF}, a random forest (RF) trained to pick the action from query-side features only; \emph{ScalarTelemetry-RF}, the same random forest given a scalar summary of the retrieval telemetry instead of the full feature set; \emph{CostGreedy-cal}, which picks the highest-nDCG action whose calibrated (``-cal'') training-window $p95$ latency fits the budget; and \emph{StaticBest-cal}, the single action with the best calibrated training-window constrained utility. Throughout, ``SOTA'' denotes the four strong published retrieval operators of Table~\ref{tab:catalog} used as static plans. Control variants include train-only compilation, query-only cell construction, metadata-only features, feature-family removals, and random cells.
+
+\subsection{Metrics, Ranking, and Tests}
+
+For each method $m$ and block $b$, we compute the mean constrained score over evaluation queries, denoted $S_{m,b}$. Methods are ranked within each block by $S_{m,b}$, with lower rank better. The average-rank statistic is
+\begin{equation}
+  \bar{r}_m=\frac{1}{|\mathcal{B}|}\sum_{b\in\mathcal{B}}\mathrm{rank}_b(m).
+\end{equation}
+We use two evaluation criteria, deliberately kept separate. The \emph{pilot Rank-1 gate} (Section~\ref{sec:results-pilot}) is a strict screen requiring \WCR{} to have the smallest $\bar{r}_m$ and to be significantly better-ranked than \emph{each} baseline after Holm correction; it is a go/no-go filter on the early single-collection study, not the headline claim. The \emph{canonical evaluation} (Section~\ref{sec:results-rank}) reports two families instead of a single pass/fail: a \emph{SOTA-static rank gate} (is \CWC{} rank-first and Holm-significant against the strong static operators?) and a \emph{matched calibration-aware parity test} (is \CWC{} at least tied, on the same paired blocks, with the calibration-aware selectors that share its violation-avoidance mechanism?). We do not claim significance over every baseline in the canonical study, because \CWC{} is by design tied with the calibration-aware selectors on mean utility and differentiated by the certificate.
+
+Pairwise tests use the complete block as the paired unit. For each baseline $m$, the tested samples are the per-block rank differences $\mathrm{rank}_b(m)-\mathrm{rank}_b(\WCR{})$. The null is that the median paired rank advantage is non-positive. We apply Holm correction over the family of candidate-versus-baseline comparisons in the same gate. In addition to rank, we report mean constrained score, satisfaction, latency, and regret as defined in Section~\ref{sec:problem}.
+
+\subsection{Certified Split Protocol}
+\label{subsec:split}
+
+The certificate of Proposition~\ref{prop:cert} requires that cell assignment and plan choice be independent of the calibration losses (Assumption~\ref{ass:cert}(iii)). The certified runs (\CWC{}; the canonical $45$-block gate of Section~\ref{sec:results-rank} and all certificate experiments) therefore use an explicit split of the labeled training window into two disjoint parts: a \emph{selection} split, used to fit the cell partition $\varphi$, to bind each cell's plan $\pi_\cell$, and---together with the unlabeled eval telemetry---to estimate the shift budget $\Gamma_\cell$ (the within-cell selection-vs-eval density-ratio classifier of Algorithm~\ref{alg:cwc}, step~5); and a \emph{calibration} split, used \emph{only} to estimate $\hat L_\cell$. Unlabeled evaluation telemetry may inform clustering and fixes the cell masses $m_\cell/M$, but evaluation relevance labels are never used, and no calibration loss enters plan selection or $\Gamma_\cell$. The exploratory \WCR{} of the pilot and audit (Sections~\ref{sec:results-pilot},~\ref{sec:results-audit}) omits this split---it clusters on the combined window and binds on the same rows---so it makes optimizer-level claims only and does not invoke the certificate.
+
+\subsection{Reproducibility Notes}
+
+\parhead{Environment.} All experiments run on a single workstation---an Intel Core i9-9900K (8C/16T), $32$\,GB RAM, and one NVIDIA RTX~4090 (24\,GB)---under Ubuntu~20.04 with PyTorch~2.10 (CUDA~12.8), scikit-learn, HNSWlib, and Sentence-Transformers (cross-encoder \texttt{ms-marco-MiniLM-L-6-v2}, dense encoder E5-base).
+
+Concrete settings used throughout: nDCG@10 quality metric; constrained-utility penalty (Definition~1) $\lambda=0.15$ per unit of normalized budget overrun; latency taken from the cached action rows (ms). Imported external rankings receive the same per-query latency/cost accounting as locally measured actions, so all methods in a block are compared on identical bookkeeping rather than each model's production serving stack. The main gate imports true rankings for Qwen3-Embedding-0.6B, SPLADE, and ColBERTv2 (NV-Embed \cite{lee2024nvembed} and RankZephyr \cite{pradeep2023rankzephyr} are discussed but not executed as actions, their outputs being unavailable under our constraints); each result directory records action rows, seeds, budgets, selectivities, feature sets, $k$-selection rules, and rank-gate inputs.

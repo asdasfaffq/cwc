@@ -1,0 +1,44 @@
+{
+  "0.2": {
+    "tau": 0.2,
+    "achieved": true,
+    "n_cal_mean": 121.2,
+    "K": 4,
+    "delta": 0.1,
+    "R_cert": 0.18542308106814887,
+    "realized": 0.004360010038508922,
+    "ndcg": 0.5299898028111939
+  },
+  "0.1": {
+    "tau": 0.1,
+    "achieved": true,
+    "n_cal_mean": 340.6,
+    "K": 2,
+    "delta": 0.05,
+    "R_cert": 0.08603061932257175,
+    "realized": 0.002686573304948366,
+    "ndcg": 0.4342216665013866
+  },
+  "0.05": {
+    "tau": 0.05,
+    "achieved": true,
+    "n_cal_mean": 688.0,
+    "K": 2,
+    "delta": 0.05,
+    "R_cert": 0.04350429958007951,
+    "realized": 0.003141620063721038,
+    "ndcg": 0.4457936593439345
+  },
+  "0.01": {
+    "tau": 0.01,
+    "achieved": false,
+    "best_R_cert": 0.03715270655287266,
+    "floor": 0.0015154238576384673,
+    "K": 2,
+    "delta": 0.1,
+    "n_cal_mean": 688.0,
+    "blocked_by": "sample_size",
+    "extrapolated_n_cal": 12137.725166391605,
+    "note": "1/sqrt(n) extrapolation from the measured statistical term"
+  }
+}

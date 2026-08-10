@@ -1,0 +1,66 @@
+{
+  "n_runs": 15,
+  "certificate_valid_in_all_runs": true,
+  "by_coarsening": [
+    {
+      "coarsening": "sel",
+      "gamma_obs_mean": 2.93892330560374,
+      "gamma_obs_max": 7.163398692810458,
+      "gamma_plugin_mean": 3.0098278221177646,
+      "R_cert_obs": 0.3129355620504372,
+      "realized": 0.0009311671772827695,
+      "valid_frac": 1.0,
+      "kappa_star": 3.947582641302454,
+      "plugin_dominates_frac": 0.0,
+      "unbounded_cells": 0.2,
+      "exch_mean_gap": 0.0011828488813023783,
+      "exch_max_abs_gap": 0.02702702702702703,
+      "runs": 15
+    },
+    {
+      "coarsening": "sel_x_lat2",
+      "gamma_obs_mean": 2.717228248604298,
+      "gamma_obs_max": 8.107758620689655,
+      "gamma_plugin_mean": 3.0098278221177646,
+      "R_cert_obs": 0.48362618388695666,
+      "realized": 0.0009311671772827695,
+      "valid_frac": 1.0,
+      "kappa_star": 3.5999522113147946,
+      "plugin_dominates_frac": 0.6,
+      "unbounded_cells": 0.8,
+      "exch_mean_gap": 0.0011816556554776869,
+      "exch_max_abs_gap": 0.03225806451612903,
+      "runs": 15
+    },
+    {
+      "coarsening": "sel_x_lat4",
+      "gamma_obs_mean": 3.6214352462848165,
+      "gamma_obs_max": 10.946502057613168,
+      "gamma_plugin_mean": 3.0098278221177646,
+      "R_cert_obs": 0.5702528902672344,
+      "realized": 0.0009311671772827695,
+      "valid_frac": 1.0,
+      "kappa_star": 4.791952213108622,
+      "plugin_dominates_frac": 0.2,
+      "unbounded_cells": 1.0,
+      "exch_mean_gap": 0.001321762136203773,
+      "exch_max_abs_gap": 0.07692307692307693,
+      "runs": 15
+    },
+    {
+      "coarsening": "sel_x_lat4_x_bm25",
+      "gamma_obs_mean": Infinity,
+      "gamma_obs_max": Infinity,
+      "gamma_plugin_mean": 3.0098278221177646,
+      "R_cert_obs": 0.7127404326555778,
+      "realized": 0.0009311671772827695,
+      "valid_frac": 1.0,
+      "kappa_star": Infinity,
+      "plugin_dominates_frac": 0.4,
+      "unbounded_cells": 3.0,
+      "exch_mean_gap": 0.0010652056331733823,
+      "exch_max_abs_gap": 0.07692307692307693,
+      "runs": 15
+    }
+  ]
+}

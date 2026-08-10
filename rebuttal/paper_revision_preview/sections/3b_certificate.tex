@@ -1,0 +1,75 @@
+\section{A Certificate for Workload-Window Plan Selection under Shift}
+\label{sec:certificate}
+
+The compiler of Section~\ref{sec:optimizer} reports \emph{empirical} stability statistics. We now strengthen this into a \emph{distribution-free, finite-sample guarantee} on the eval-window constraint-violation rate that holds even when the eval workload window is shifted relative to training. This is the property that static and per-query baselines do not provide, and it is the formal contribution of \CWC{} (Certified Window Compiler), the guarded variant of the compiler.
+
+\parhead{Setup.}
+Let the deployed loss be the SLO/constraint-violation indicator $L(\q,\plan)=\mathbf{1}\{\latency(\q,\plan)>B\}\in[0,1]$ for budget $B$. A measurable map $\varphi:\mathcal X\to\{1,\dots,K\}$ assigns each query to one of $K$ plan cells; cell $\cell$ deploys plan $\pi_\cell$. Write $P_\cell$ and $Q_\cell$ for the train- and eval-window cell-conditional query laws, $\hat L_\cell$ for the empirical loss of $\pi_\cell$ on $n_\cell$ calibration queries in cell $\cell$, $\bar L_\cell=\E_{P_\cell}[L(\cdot,\pi_\cell)]$, and $m_\cell/M$ for the (observed) eval-window mass of cell $\cell$. We adopt a finite-population model: $P_\cell$ and $Q_\cell$ are the empirical laws of cell $\cell$ over a finite train and eval universe, the density ratio $w_\cell$ is the ratio of these empirical cell-conditional masses (finite and bounded by $\Gamma_\cell$ when $P_\cell$ puts positive mass on every eval atom, Assumption~\ref{ass:cert}(ii)), and the certified target $R_Q=\sum_{\cell} (m_\cell/M)\,\E_{Q_\cell}[L(\cdot,\pi_\cell)]$ is the realized finite eval-window violation rate the experiments measure. The $n_\cell$ calibration losses are sampled from $P_\cell$ (the only randomness in Proposition~\ref{prop:cert}); under this model the change-of-measure and Hoeffding steps below are exact for the realized window rather than for a separate population.
+
+\begin{assumption}[Bounded loss, bounded shift, calibration independence]
+\label{ass:cert}
+(i) $L\in[0,1]$. (ii) For each cell the eval law is absolutely continuous w.r.t.\ the train law with a bounded density ratio $\lVert \mathrm dQ_\cell/\mathrm dP_\cell\rVert_\infty\le \Gamma_\cell<\infty$. (iii) $\varphi$ and the plan choice $\{\pi_\cell\}$ are computed from an independent selection split and the unlabeled eval features only, so that conditional on $(\varphi,\{\pi_\cell\})$ the $n_\cell$ calibration queries in cell $\cell$ are i.i.d.\ draws from $P_\cell$.
+\end{assumption}
+
+\begin{proposition}[Workload-window shift certificate]
+\label{prop:cert}
+Under Assumption~\ref{ass:cert}, with probability at least $1-\delta$ over the calibration sample,
+\begin{equation}
+\label{eq:cert}
+R_Q \;\le\; \Rcert := \sum_{\cell=1}^{K}\frac{m_\cell}{M}\,
+\min\!\Big\{\Gamma_\cell\Big(\hat L_\cell + \sqrt{\tfrac{\log(K/\delta)}{2 n_\cell}}\Big),\,1\Big\}.
+\end{equation}
+Both the fallback plan and the per-cell abstain decision are functions of the \emph{selection} split alone: the fallback is the selection-split feasibility-best action, and a cell abstains when its selection-split support/margin fall below the fixed thresholds of Section~\ref{subsec:frontier}. The deployed plan $\pi_\cell$ (either the bound action or the fallback) is therefore fixed before calibration, the calibration split certifies only that one deployed plan per cell, and there are exactly $K$ Hoeffding events---so no union bound over candidate plans is introduced and \eqref{eq:cert} holds as stated with $\log(K/\delta)$ for whichever plan is deployed. (We do not claim abstention monotonically lowers $\Rcert$ or the realized rate---the fallback has its own nonzero loss; we claim only that validity is preserved because the deployed plan is fixed before calibration.)
+\end{proposition}
+
+\begin{proof}
+Conditioning on the realized eval window fixes the masses $m_\cell/M$. For each cell, a change of measure under Assumption~\ref{ass:cert}(i)--(ii) gives $\E_{Q_\cell}[L]=\E_{P_\cell}[w_\cell L]\le \Gamma_\cell \bar L_\cell$ since $L\ge 0$ and $w_\cell\le\Gamma_\cell$ pointwise. By Assumption~\ref{ass:cert}(iii), $\pi_\cell$ is fixed given the selection split and the $n_\cell$ calibration losses are i.i.d.\ in $[0,1]$, so one-sided Hoeffding yields $\bar L_\cell\le \hat L_\cell+\sqrt{\log(K/\delta)/(2 n_\cell)}$ with probability $1-\delta/K$. A union bound over the $K$ cells and the trivial cap $\E_{Q_\cell}[L]\le 1$ give \eqref{eq:cert}. Whether $\pi_\cell$ is the bound action or the fallback is decided on the selection split, so the deployed plan is fixed before calibration and \eqref{eq:cert} certifies that one plan per cell; we make no claim that abstention reduces $\Rcert$. \emph{Boundary cases:} a cell with $n_\cell{=}0$ takes the trivial cap $1$ and abstains by construction; if $\hat L_\cell{=}0$ its term is $\min\{\Gamma_\cell\sqrt{\log(K/\delta)/(2n_\cell)},1\}{>}0$ (why the bound stays loose at small $n_\cell$); empty eval cells ($m_\cell{=}0$) contribute zero mass. The variance-adaptive (empirical-Bernstein) form replaces the Hoeffding radius by the Maurer--Pontil radius $\sqrt{2\hat\sigma^2_\cell\log(2K/\delta)/n_\cell}+7\log(2K/\delta)/(3(n_\cell-1))$, with $\hat\sigma^2_\cell$ the empirical loss variance in cell $\cell$; it holds by the same union bound and tightens $\Rcert$ from $\approx0.30$ to $\approx0.26$ at scale.
+\end{proof}
+
+\parhead{Reading the certificate.}
+Three points matter for deployment. First, the guarantee is at the \emph{workload-window} granularity: the eval masses $m_\cell/M$ are observed exactly (the transductive advantage), so only the $K$ within-cell expectations carry statistical risk. This sidesteps the documented unreliability of per-query selective processing~\cite{qpplimits2025}. Second, the bound is \emph{operational}: it turns the empirical stability report into a deployment rule via the selection-split abstain mechanism; abstention preserves validity because the deployed plan is fixed before calibration (it is not claimed to monotonically reduce $\Rcert$ or the realized rate). Third, the dominant term is $\Gamma_\cell\sqrt{\log(K/\delta)/(2n_\cell)}$, so the certificate is tight only when per-cell calibration counts $n_\cell$ are large; this directly motivates choosing $K$ to keep cells well-populated rather than to maximize a separation score, and it predicts the loose bounds we observe on a small benchmark (Section~\ref{sec:results}).
+
+\parhead{Certification contract.} We use three labels consistently for the rest of the paper, to keep theorem-validity, empirical upper-bounding, and the model-based variant strictly separate.
+\begin{itemize}\itemsep1pt\setlength{\leftmargini}{1.2em}
+\item \textsc{Theorem-valid}. Proposition~\ref{prop:cert} holds, distribution-free and finite-sample, \emph{conditional on} $\Gamma_\cell$ being a true upper bound on the within-cell density ratio (Assumption~\ref{ass:cert}(ii)).
+\item \textsc{Headline plug-in}. The reported $\Rcert$ substitutes a conservative estimate of $\Gamma_\cell$ from a regularized within-cell density-ratio classifier. We do not call this ``valid''; we state only the operational fact that \emph{the plug-in bound upper-bounds the realized violation in every evaluated run}, under the assumption that the estimated $\Gamma_\cell$ is a valid bounded-shift budget. It is not an end-to-end finite-sample $\Gamma_\cell$ certificate.
+\item \textsc{Model-based UCB}. Remark~\ref{rem:rho-ucb} replaces $\Gamma_\cell$ by a data-driven upper confidence bound $\bar\Gamma_\cell$ that is valid \emph{under the stated log-linear density-ratio model} (not model-free); it removes the plug-in step but is numerically vacuous at our sample sizes, and is never the source of a headline number.
+\end{itemize}
+We additionally report robustness to $\Gamma_\cell$ misspecification; misspecification and small $n_\cell$ loosen the bound but, under \textsc{Theorem-valid}, do not affect its validity.
+
+Algorithm~\ref{alg:cwc} makes the certified data flow explicit: every object that the certificate conditions on is frozen on the selection split (plus unlabeled eval telemetry) before any calibration loss is read.
+
+\begin{algorithm}[t]
+\caption{\CWC{}: certified workload-window compilation. Steps 1--5 use only the selection split and unlabeled eval features; step 6 is the sole use of calibration losses.}
+\label{alg:cwc}
+\begin{algorithmic}[1]
+\REQUIRE selection split $S$, calibration split $C$ (disjoint, labeled), unlabeled eval window $E$, catalog $\A$, budget $B$, cells $K$, level $\delta$
+\STATE fit standardizer and $K$-means $\varphi$ on telemetry of $S\cup E$ \hfill(no labels)
+\STATE bind each cell's plan $\pi_\cell\!\leftarrow\!\argmax$ mean constrained utility on $S\cap\cell$
+\STATE compute selection-split support/margin; mark fragile cells
+\STATE fallback $\pi^{\mathrm{fb}}_\cell\!\leftarrow$ feasibility-best action on $S\cap\cell$; deploy $\pi^{\mathrm{fb}}_\cell$ on fragile cells
+\STATE estimate $\Gamma_\cell$ from a within-cell $S$-vs-$E$ density-ratio classifier; observe masses $m_\cell/M$ on $E$
+\STATE \textbf{(calibration)} $\hat L_\cell\!\leftarrow$ mean loss of the \emph{deployed} plan on $C\cap\cell$
+\STATE \textbf{return} deployed policy and $\Rcert$ via \eqref{eq:cert}
+\end{algorithmic}
+\end{algorithm}
+
+\begin{proposition}[Transductive width advantage over per-query certification]
+\label{prop:sep}
+Fix the per-cell certified terms $U_\cell=\min\{\Gamma_\cell(\hat L_\cell+\varepsilon_\cell),1\}$. The window certificate weights them by the \emph{observed} masses $m_\cell/M$, contributing no weight-deviation term. A certifier in the \emph{distributional class}---one whose guarantee holds for the eval law $Q$ rather than the realized window, and which therefore does not condition on $\{m_\cell/M\}$ (the class of per-query conformal latency certification, e.g.\ \cite{cp4lqo2025})---bounds $R_Q$ by combining the same $U_\cell$ with cell weights it has not observed; preserving validity over all admissible compositions then costs an additive penalty of at least
+\[
+\Delta_{\mathrm{mass}} \;\ge\; c_0\sum_\cell U_\cell\sqrt{\tfrac{q_\cell(1-q_\cell)\log(1/\delta)}{M}}\;>\;0
+\]
+for a universal $c_0>0$, whenever some cell has $q_\cell\in(0,1)$ and $U_\cell>0$. The penalty is governed by the window size $M$, not the calibration size $n_\cell$, so it does \emph{not} vanish as $n_\cell\to\infty$. This is a separation between guarantee \emph{targets} (realized window vs.\ eval law), not an impossibility against all algorithms (a scheme permitted to read $\{m_\cell\}$ is, by definition, a transductive window certifier).
+\end{proposition}
+
+\begin{proof}
+Both classes deploy a fixed per-cell plan and obtain the same $U_\cell$ valid w.p.\ $1-\delta/K$ each (A1--A3, one-sided Hoeffding, union over $K$); they differ only in the cell weights used to bound $R_Q=\sum_\cell(m_\cell/M)\E_{Q_\cell}[L]$. Conditioning on the realized window makes $m_\cell/M$ constants, so $\sum_\cell(m_\cell/M)U_\cell$ is valid with \emph{no} weight-deviation term. A distributional certifier does not observe $\{m_\cell\}$; using weights $\hat q_\cell$ it must satisfy $\sum_\cell\hat q_\cell U_\cell\ge\sum_\cell q_\cell\E_{Q_\cell}[L]$ uniformly over admissible $q$, forcing $\hat q_\cell$ to a one-sided $1-\delta$ upper envelope of $q_\cell$. Since $m_\cell\sim\mathrm{Binomial}(M,q_\cell)$, a two-point (Bretagnolle--Huber) argument shows no such envelope is smaller than $c_0\sqrt{q_\cell(1-q_\cell)\log(1/\delta)/M}$; summing against $U_\cell$ gives $\Delta_{\mathrm{mass}}$. The penalty depends on $M$, not $n_\cell$, so it persists as $n_\cell\to\infty$. (A certifier avoiding mass estimation by a per-query bound uniform over the $M$ eval queries instead carries $\log(M/\delta')$ rather than $\log(K/\delta')$ in its radius---the same-signed penalty for $M{>}K$.)
+\end{proof}
+
+\noindent The separation is between guarantee \emph{targets}: a scheme handed the realized masses is, by definition, a transductive window certifier (i.e.\ \CWC{}), not an information-theoretic impossibility against all algorithms. In our regime ($K{=}4$, $M{\approx}860$, $\Gamma_\cell{\approx}3$) the transductive design buys $\approx0.02$ of bound width via the mass-deviation route and $\approx0.12$ via the per-query union-bound route ($\log M$ vs.\ $\log K$); the constant $c_0$ is not optimized, only its positivity and $n_\cell$-independence are used.
+
+\begin{remark}[Certifying the shift budget end-to-end]
+\label{rem:rho-ucb}
+The bound \eqref{eq:cert} treats $\Gamma_\cell$ as given. Under a log-linear density-ratio model $\mathrm dQ_\cell/\mathrm dP_\cell\propto\exp(\beta_\cell^\top\phi)$ with bounded features ($\lVert\phi\rVert\le R_\cell$), the within-cell train-vs-eval classifier yields $\Gamma_\cell\le\exp(R_\cell\lVert\beta_\cell\rVert)$, and a confidence set for $\beta_\cell$ gives a data-driven upper bound $\bar\Gamma_\cell(\delta')\ge\Gamma_\cell$ with probability $1-\delta'$. Splitting the budget ($\delta/2$ to the Hoeffding events, $\delta/2K$ per-cell to the $\bar\Gamma_\cell$ events) replaces $\Gamma_\cell$ by $\bar\Gamma_\cell$ in \eqref{eq:cert} and removes the assumed-shift-magnitude caveat, giving a guarantee valid end-to-end. We verify this variant is valid in every evaluated run; however, on a 100-query collection it is numerically vacuous, because certifying $\Gamma_\cell$ from $n_\cell\approx 20$--$50$ points inflates $\bar\Gamma_\cell$ until the cap dominates. Closing the validity gap and obtaining a \emph{tight} end-to-end bound therefore both require larger workload windows.
+\end{remark}

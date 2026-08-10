@@ -1,0 +1,8 @@
+variant,display,pass_gate,failures,candidate_avg_rank,mean_score,mean_regret,selected_k_counts
+fixed_k6_features_full,Full telemetry,True,0,3.716666666666667,0.3537223311848639,0.0487736199593257,"{""6"": 30}"
+fixed_k6_features_no_dense,No dense,False,4,5.516666666666667,0.3477898178316562,0.0547061333125334,"{""6"": 30}"
+fixed_k6_features_metadata_only,Metadata only,False,4,6.0,0.3446412078491797,0.05785474329501,"{""1"": 30}"
+fixed_k6_features_no_bm25,No BM25,False,7,6.216666666666667,0.343517339792445,0.0589786113517447,"{""6"": 30}"
+fixed_k6_features_no_probe,No probe,False,8,6.116666666666666,0.3436090566338511,0.0588868945103385,"{""6"": 30}"
+fixed_k6_features_no_overlap,No overlap,False,8,6.216666666666667,0.3441794579219003,0.0583164932222893,"{""6"": 30}"
+fixed_k6_features_query_only,Query only,False,9,6.383333333333334,0.3435381031032506,0.058957848040939,"{""6"": 30}"

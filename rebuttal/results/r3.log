@@ -1,0 +1,22 @@
+/home/lyx/桌面/icde2027-moo-data-idea/scripts/certified_window_compiler.py:50: DtypeWarning: Columns (47) have mixed types. Specify dtype option on import or set low_memory=False.
+  df = pd.read_csv(csv_path)
+  done budget=80 seed=13
+  done budget=80 seed=17
+  done budget=80 seed=23
+  done budget=80 seed=29
+  done budget=80 seed=31
+  done budget=120 seed=13
+  done budget=120 seed=17
+  done budget=120 seed=23
+  done budget=120 seed=29
+  done budget=120 seed=31
+  done budget=160 seed=13
+  done budget=160 seed=17
+  done budget=160 seed=23
+  done budget=160 seed=29
+  done budget=160 seed=31
+       coarsening  gamma_obs_mean  gamma_obs_max  gamma_plugin_mean  R_cert_obs  realized  valid_frac  kappa_star  plugin_dominates_frac  unbounded_cells  exch_mean_gap  exch_max_abs_gap  runs
+              sel        2.938923       7.163399           3.009828    0.312936  0.000931         1.0    3.947583                    0.0              0.2       0.001183          0.027027    15
+       sel_x_lat2        2.717228       8.107759           3.009828    0.483626  0.000931         1.0    3.599952                    0.6              0.8       0.001182          0.032258    15
+       sel_x_lat4        3.621435      10.946502           3.009828    0.570253  0.000931         1.0    4.791952                    0.2              1.0       0.001322          0.076923    15
+sel_x_lat4_x_bm25             inf            inf           3.009828    0.712740  0.000931         1.0         inf                    0.4              3.0       0.001065          0.076923    15

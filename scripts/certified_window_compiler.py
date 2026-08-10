@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """Certified Workload-Window Compiler under bounded workload shift.
 
-Implements the certificate of the accompanying paper (see the certificate section
-and Proposition, "distribution-free finite-sample SLO-violation bound"):
+Implements the theorem in refine-logs/PROOF_PACKAGE_WINDOW_CERT_20260529.md:
 - partition queries into K plan cells over observable telemetry;
 - SAMPLE-SPLIT the labeled train window into a selection split (choose the
   per-cell plan) and an independent calibration split (estimate L-hat);
@@ -319,7 +318,7 @@ def run_budget(df: pd.DataFrame, budget: float, p_train_by_sel: dict[float, floa
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--action-rows", type=Path,
-                    default=Path("data/sample/nfcorpus_action_rows_sample.csv"))
+                    default=Path("results/sys_real_external_qwen_splade_colbert_seed13/all_action_rows.csv"))
     ap.add_argument("--dataset", default="nfcorpus")
     ap.add_argument("--output-dir", type=Path, default=Path("results/certified_window_compiler"))
     ap.add_argument("--budgets-ms", default="80,120,160")

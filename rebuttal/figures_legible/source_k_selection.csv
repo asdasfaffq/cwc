@@ -1,0 +1,11 @@
+variant,k,candidate_avg_rank,pass_gate,failures,selected_k_counts
+transductive_k2_scope_all,2,4.816666666666666,False,1,
+transductive_k3_scope_all,3,5.683333333333334,False,5,
+transductive_k4_scope_all,4,4.85,False,3,
+transductive_k5_scope_all,5,3.783333333333333,True,0,
+transductive_k6_scope_all,6,3.716666666666667,True,0,
+transductive_k8_scope_all,8,4.95,False,3,
+transductive_k10_scope_all,10,6.383333333333334,False,7,
+transductive_k12_scope_all,12,6.966666666666667,False,13,
+auto_elbow_features_full,auto,3.783333333333333,True,0,"{""5"": 30}"
+auto_silhouette_features_full,auto,4.35,False,3,"{""4"": 20, ""5"": 10}"

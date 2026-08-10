@@ -1,0 +1,165 @@
+[stack] nfcorpus: 3633 docs, 250 queries, device=cuda
+[A] measuring plan latency/quality (real execution)
+    100/1000 items (9s)
+    200/1000 items (18s)
+    300/1000 items (26s)
+    400/1000 items (35s)
+    500/1000 items (44s)
+    600/1000 items (53s)
+    700/1000 items (62s)
+    800/1000 items (71s)
+    900/1000 items (80s)
+    1000/1000 items (89s)
+[A] mean plan latency (ms): {"bm25_pre": 0.16, "bm25_post": 0.15, "dense_pre": 1.32, "dense_post": 0.23, "rrf_pre": 1.41, "rrf_post": 0.43, "rerank20_pre": 25.59, "rerank50_pre": 58.47}
+[A] mean plan nDCG@10   : {"bm25_pre": 0.1433, "bm25_post": 0.1394, "dense_pre": 0.1888, "dense_post": 0.1847, "rrf_pre": 0.1668, "rrf_post": 0.1722, "rerank20_pre": 0.1876, "rerank50_pre": 0.1852}
+[A] s=1.0: bm25_pre=0.17ms/0.265  bm25_post=0.15ms/0.265  dense_pre=0.27ms/0.344  dense_post=0.18ms/0.344  rrf_pre=0.41ms/0.319  rrf_post=0.40ms/0.319  rerank20_pre=24.47ms/0.348  rerank50_pre=56.77ms/0.347
+[A] s=0.5: bm25_pre=0.17ms/0.198  bm25_post=0.15ms/0.195  dense_pre=0.85ms/0.242  dense_post=0.23ms/0.241  rrf_pre=0.94ms/0.223  rrf_post=0.43ms/0.226  rerank20_pre=24.86ms/0.246  rerank50_pre=58.12ms/0.244
+[A] s=0.1: bm25_pre=0.15ms/0.083  bm25_post=0.15ms/0.079  dense_pre=2.08ms/0.120  dense_post=0.26ms/0.116  rrf_pre=2.16ms/0.092  rrf_post=0.44ms/0.110  rerank20_pre=26.25ms/0.113  rerank50_pre=59.05ms/0.108
+[A] s=0.02: bm25_pre=0.15ms/0.027  bm25_post=0.15ms/0.018  dense_pre=2.06ms/0.049  dense_post=0.26ms/0.037  rrf_pre=2.11ms/0.034  rrf_post=0.44ms/0.035  rerank20_pre=26.76ms/0.043  rerank50_pre=59.96ms/0.042
+[A] probe p95=0.77 ms -> SLO grid [1.54, 3.83, 9.52, 23.66, 58.82] ms
+  [B] b=1.54 seed=13 CWC                  p95=    0.8 viol=0.004 nDCG=0.1288 qps=1447.6
+  [B] b=1.54 seed=13 StaticBest-cal       p95=    0.2 viol=0.000 nDCG=0.1287 qps=5416.2
+  [B] b=1.54 seed=13 CostGreedy-cal       p95=    0.2 viol=0.000 nDCG=0.1287 qps=5334.6
+  [B] b=1.54 seed=13 Static-BestQuality   p95=   29.3 viol=1.000 nDCG=0.1319 qps=38.8
+  [B] b=1.54 seed=13 Static-Fallback      p95=    0.2 viol=0.000 nDCG=0.1287 qps=5245.3
+  [B] b=1.54 seed=13 Oracle-perItem       p95=    0.7 viol=0.004 nDCG=0.1510 qps=4087.7
+  [B] b=1.54 seed=17 CWC                  p95=    1.0 viol=0.002 nDCG=0.1371 qps=1275.0
+  [B] b=1.54 seed=17 StaticBest-cal       p95=    0.2 viol=0.000 nDCG=0.1390 qps=5451.7
+  [B] b=1.54 seed=17 CostGreedy-cal       p95=    0.2 viol=0.000 nDCG=0.1390 qps=5406.6
+  [B] b=1.54 seed=17 Static-BestQuality   p95=   32.6 viol=1.000 nDCG=0.1394 qps=37.8
+  [B] b=1.54 seed=17 Static-Fallback      p95=    0.2 viol=0.000 nDCG=0.1390 qps=4998.2
+  [B] b=1.54 seed=17 Oracle-perItem       p95=    0.8 viol=0.004 nDCG=0.1616 qps=3670.5
+  [B] b=1.54 seed=23 CWC                  p95=    0.9 viol=0.002 nDCG=0.1272 qps=1449.8
+  [B] b=1.54 seed=23 StaticBest-cal       p95=    0.2 viol=0.000 nDCG=0.1272 qps=5484.0
+  [B] b=1.54 seed=23 CostGreedy-cal       p95=    0.2 viol=0.000 nDCG=0.1272 qps=5632.1
+  [B] b=1.54 seed=23 Static-BestQuality   p95=   31.8 viol=1.000 nDCG=0.1291 qps=38.0
+  [B] b=1.54 seed=23 Static-Fallback      p95=    0.2 viol=0.000 nDCG=0.1272 qps=5215.9
+  [B] b=1.54 seed=23 Oracle-perItem       p95=    0.7 viol=0.000 nDCG=0.1476 qps=3974.0
+  [B] b=3.83 seed=13 CWC                  p95=    3.5 viol=0.010 nDCG=0.1343 qps=458.4
+  [B] b=3.83 seed=13 StaticBest-cal       p95=    1.8 viol=0.000 nDCG=0.1343 qps=730.3
+  [B] b=3.83 seed=13 CostGreedy-cal       p95=    2.7 viol=0.000 nDCG=0.1343 qps=685.3
+  [B] b=3.83 seed=13 Static-BestQuality   p95=   31.4 viol=1.000 nDCG=0.1319 qps=39.3
+  [B] b=3.83 seed=13 Static-Fallback      p95=    1.8 viol=0.000 nDCG=0.1343 qps=756.7
+  [B] b=3.83 seed=13 Oracle-perItem       p95=    1.8 viol=0.000 nDCG=0.1562 qps=2014.6
+  [B] b=3.83 seed=17 CWC                  p95=    3.1 viol=0.006 nDCG=0.1455 qps=499.2
+  [B] b=3.83 seed=17 StaticBest-cal       p95=    1.8 viol=0.000 nDCG=0.1454 qps=766.2
+  [B] b=3.83 seed=17 CostGreedy-cal       p95=    1.8 viol=0.000 nDCG=0.1454 qps=748.9
+  [B] b=3.83 seed=17 Static-BestQuality   p95=   33.3 viol=1.000 nDCG=0.1394 qps=38.1
+  [B] b=3.83 seed=17 Static-Fallback      p95=    2.8 viol=0.000 nDCG=0.1454 qps=683.1
+  [B] b=3.83 seed=17 Oracle-perItem       p95=    1.9 viol=0.000 nDCG=0.1669 qps=1870.2
+  [B] b=3.83 seed=23 CWC                  p95=    2.9 viol=0.013 nDCG=0.1333 qps=466.5
+  [B] b=3.83 seed=23 StaticBest-cal       p95=    1.9 viol=0.000 nDCG=0.1333 qps=730.5
+  [B] b=3.83 seed=23 CostGreedy-cal       p95=    2.1 viol=0.000 nDCG=0.1333 qps=720.6
+  [B] b=3.83 seed=23 Static-BestQuality   p95=   30.4 viol=1.000 nDCG=0.1291 qps=38.6
+  [B] b=3.83 seed=23 Static-Fallback      p95=    2.8 viol=0.000 nDCG=0.1333 qps=651.5
+  [B] b=3.83 seed=23 Oracle-perItem       p95=    2.0 viol=0.000 nDCG=0.1523 qps=1839.9
+  [B] b=9.52 seed=13 CWC                  p95=    3.7 viol=0.000 nDCG=0.1343 qps=436.5
+  [B] b=9.52 seed=13 StaticBest-cal       p95=    2.8 viol=0.000 nDCG=0.1343 qps=662.0
+  [B] b=9.52 seed=13 CostGreedy-cal       p95=    2.7 viol=0.000 nDCG=0.1343 qps=691.1
+  [B] b=9.52 seed=13 Static-BestQuality   p95=   32.3 viol=1.000 nDCG=0.1319 qps=37.7
+  [B] b=9.52 seed=13 Static-Fallback      p95=    1.9 viol=0.000 nDCG=0.1343 qps=704.5
+  [B] b=9.52 seed=13 Oracle-perItem       p95=    1.9 viol=0.000 nDCG=0.1562 qps=1970.5
+  [B] b=9.52 seed=17 CWC                  p95=    3.3 viol=0.000 nDCG=0.1455 qps=484.6
+  [B] b=9.52 seed=17 StaticBest-cal       p95=    2.9 viol=0.000 nDCG=0.1454 qps=610.8
+  [B] b=9.52 seed=17 CostGreedy-cal       p95=    2.9 viol=0.000 nDCG=0.1454 qps=590.7
+  [B] b=9.52 seed=17 Static-BestQuality   p95=   30.7 viol=1.000 nDCG=0.1394 qps=38.4
+  [B] b=9.52 seed=17 Static-Fallback      p95=    2.0 viol=0.000 nDCG=0.1454 qps=689.5
+  [B] b=9.52 seed=17 Oracle-perItem       p95=    1.9 viol=0.000 nDCG=0.1669 qps=1790.7
+  [B] b=9.52 seed=23 CWC                  p95=    3.3 viol=0.000 nDCG=0.1333 qps=440.1
+  [B] b=9.52 seed=23 StaticBest-cal       p95=    2.1 viol=0.000 nDCG=0.1333 qps=688.1
+  [B] b=9.52 seed=23 CostGreedy-cal       p95=    2.6 viol=0.000 nDCG=0.1333 qps=667.1
+  [B] b=9.52 seed=23 Static-BestQuality   p95=   34.7 viol=1.000 nDCG=0.1291 qps=36.7
+  [B] b=9.52 seed=23 Static-Fallback      p95=    2.8 viol=0.000 nDCG=0.1333 qps=655.6
+  [B] b=9.52 seed=23 Oracle-perItem       p95=    1.9 viol=0.000 nDCG=0.1523 qps=1929.8
+  [B] b=23.66 seed=13 CWC                  p95=    3.5 viol=0.000 nDCG=0.1343 qps=442.2
+  [B] b=23.66 seed=13 StaticBest-cal       p95=    1.9 viol=0.000 nDCG=0.1343 qps=717.2
+  [B] b=23.66 seed=13 CostGreedy-cal       p95=    2.8 viol=0.000 nDCG=0.1343 qps=655.0
+  [B] b=23.66 seed=13 Static-BestQuality   p95=   35.9 viol=0.892 nDCG=0.1319 qps=36.2
+  [B] b=23.66 seed=13 Static-Fallback      p95=    2.9 viol=0.000 nDCG=0.1343 qps=629.6
+  [B] b=23.66 seed=13 Oracle-perItem       p95=    2.0 viol=0.004 nDCG=0.1574 qps=1162.7
+  [B] b=23.66 seed=17 CWC                  p95=    3.7 viol=0.000 nDCG=0.1455 qps=460.8
+  [B] b=23.66 seed=17 StaticBest-cal       p95=    2.0 viol=0.000 nDCG=0.1454 qps=717.7
+  [B] b=23.66 seed=17 CostGreedy-cal       p95=    2.0 viol=0.000 nDCG=0.1454 qps=717.5
+  [B] b=23.66 seed=17 Static-BestQuality   p95=   32.3 viol=0.880 nDCG=0.1394 qps=37.5
+  [B] b=23.66 seed=17 Static-Fallback      p95=    2.7 viol=0.000 nDCG=0.1454 qps=659.8
+  [B] b=23.66 seed=17 Oracle-perItem       p95=    2.2 viol=0.009 nDCG=0.1685 qps=933.9
+  [B] b=23.66 seed=23 CWC                  p95=    3.6 viol=0.000 nDCG=0.1333 qps=435.6
+  [B] b=23.66 seed=23 StaticBest-cal       p95=    2.0 viol=0.000 nDCG=0.1333 qps=705.9
+  [B] b=23.66 seed=23 CostGreedy-cal       p95=    1.9 viol=0.000 nDCG=0.1333 qps=717.3
+  [B] b=23.66 seed=23 Static-BestQuality   p95=   31.6 viol=0.826 nDCG=0.1291 qps=38.3
+  [B] b=23.66 seed=23 Static-Fallback      p95=    2.4 viol=0.000 nDCG=0.1333 qps=684.8
+  [B] b=23.66 seed=23 Oracle-perItem       p95=    2.0 viol=0.006 nDCG=0.1545 qps=889.8
+  [B] b=58.82 seed=13 CWC                  p95=   28.8 viol=0.000 nDCG=0.1335 qps=120.1
+  [B] b=58.82 seed=13 StaticBest-cal       p95=   32.2 viol=0.000 nDCG=0.1319 qps=37.7
+  [B] b=58.82 seed=13 CostGreedy-cal       p95=   31.8 viol=0.000 nDCG=0.1319 qps=38.3
+  [B] b=58.82 seed=13 Static-BestQuality   p95=   31.3 viol=0.000 nDCG=0.1319 qps=38.3
+  [B] b=58.82 seed=13 Static-Fallback      p95=    2.8 viol=0.000 nDCG=0.1343 qps=654.9
+  [B] b=58.82 seed=13 Oracle-perItem       p95=   25.9 viol=0.008 nDCG=0.1624 qps=317.8
+  [B] b=58.82 seed=17 CWC                  p95=   35.3 viol=0.000 nDCG=0.1394 qps=36.4
+  [B] b=58.82 seed=17 StaticBest-cal       p95=   31.1 viol=0.000 nDCG=0.1394 qps=38.8
+  [B] b=58.82 seed=17 CostGreedy-cal       p95=   33.4 viol=0.000 nDCG=0.1394 qps=37.6
+  [B] b=58.82 seed=17 Static-BestQuality   p95=   31.4 viol=0.000 nDCG=0.1394 qps=38.7
+  [B] b=58.82 seed=17 Static-Fallback      p95=   35.6 viol=0.000 nDCG=0.1394 qps=37.6
+  [B] b=58.82 seed=17 Oracle-perItem       p95=   25.6 viol=0.004 nDCG=0.1747 qps=268.7
+  [B] b=58.82 seed=23 CWC                  p95=   22.5 viol=0.000 nDCG=0.1326 qps=256.9
+  [B] b=58.82 seed=23 StaticBest-cal       p95=   31.0 viol=0.000 nDCG=0.1291 qps=38.6
+  [B] b=58.82 seed=23 CostGreedy-cal       p95=   33.2 viol=0.000 nDCG=0.1291 qps=37.6
+  [B] b=58.82 seed=23 Static-BestQuality   p95=   28.6 viol=0.000 nDCG=0.1291 qps=40.0
+  [B] b=58.82 seed=23 Static-Fallback      p95=    2.0 viol=0.000 nDCG=0.1333 qps=714.7
+  [B] b=58.82 seed=23 Oracle-perItem       p95=   24.9 viol=0.002 nDCG=0.1596 qps=301.1
+ budget_ms             policy   mean_ms    p95_ms    p99_ms  slo_violation   ndcg10  throughput_qps
+      1.54                CWC  0.704946  0.883991  1.041913       0.002545 0.131012     1390.814266
+      1.54     CostGreedy-cal  0.172031  0.215412  0.250403       0.000000 0.131594     5457.779085
+      1.54     Oracle-perItem  0.233274  0.724195  1.016273       0.002547 0.153416     3910.728773
+      1.54 Static-BestQuality 26.146627 31.246396 35.041438       1.000000 0.133459       38.214383
+      1.54    Static-Fallback  0.180575  0.234934  0.312705       0.000000 0.131594     5153.151886
+      1.54     StaticBest-cal  0.172133  0.216895  0.256732       0.000000 0.131594     5450.638973
+      3.83                CWC  2.077579  3.162509  3.788944       0.009513 0.137677      474.723692
+      3.83     CostGreedy-cal  1.366526  2.216057  2.821966       0.000000 0.137621      718.250387
+      3.83     Oracle-perItem  0.499501  1.871718  2.802438       0.000000 0.158466     1908.238087
+      3.83 Static-BestQuality 25.863092 31.713352 37.411528       1.000000 0.133459       38.634914
+      3.83    Static-Fallback  1.411583  2.462094  2.660173       0.000000 0.137621      697.120518
+      3.83     StaticBest-cal  1.321458  1.841744  2.443764       0.000000 0.137621      742.330925
+      9.52                CWC  2.174954  3.402225  3.873487       0.000000 0.137677      453.746723
+      9.52     CostGreedy-cal  1.514315  2.728869  2.977542       0.000000 0.137621      649.636114
+      9.52     Oracle-perItem  0.502786  1.899059  2.400794       0.000000 0.158471     1896.967782
+      9.52 Static-BestQuality 26.582414 32.558921 35.868253       1.000000 0.133459       37.595273
+      9.52    Static-Fallback  1.435042  2.263726  2.829190       0.000000 0.137621      683.208769
+      9.52     StaticBest-cal  1.502218  2.593984  3.016160       0.000000 0.137621      653.622017
+     23.66                CWC  2.207616  3.596725  3.888656       0.000000 0.137677      446.190091
+     23.66     CostGreedy-cal  1.408601  2.230557  2.659880       0.000000 0.137621      696.596479
+     23.66     Oracle-perItem  0.993484  2.053769 22.389417       0.006335 0.160162      995.499508
+     23.66 Static-BestQuality 26.771388 33.240374 38.100695       0.866283 0.133459       37.336742
+     23.66    Static-Fallback  1.490115  2.683089  2.978174       0.000000 0.137621      658.046243
+     23.66     StaticBest-cal  1.373166  1.950626  2.691448       0.000000 0.137621      713.580302
+     58.82                CWC 13.192602 28.868166 34.712946       0.000000 0.135177      137.818648
+     58.82     CostGreedy-cal 26.429635 32.837391 36.940490       0.000000 0.133459       37.803769
+     58.82     Oracle-perItem  3.370857 25.447047 52.327679       0.004459 0.165573      295.866446
+     58.82 Static-BestQuality 25.614621 30.436014 34.607734       0.000000 0.133459       39.015920
+     58.82    Static-Fallback  9.804247 13.496293 15.384203       0.000000 0.135633      469.105608
+     58.82     StaticBest-cal 26.045339 31.455461 35.327691       0.000000 0.133459       38.362566
+[C] open-loop Poisson load test (real execution behind a single-server queue)
+[C] mean service ms: {'CWC': 2.01, 'StaticBest-cal': 1.31, 'CostGreedy-cal': 1.28, 'Static-BestQuality': 24.79} -> reference capacity 40.3 qps
+  [C] rho=0.6 CWC                  p95=     4.2 p99=     5.0 viol=0.113 goodput=23.2
+  [C] rho=0.6 StaticBest-cal       p95=     3.1 p99=     3.9 viol=0.013 goodput=23.2
+  [C] rho=0.6 CostGreedy-cal       p95=     2.9 p99=     3.4 viol=0.003 goodput=23.2
+  [C] rho=0.6 Static-BestQuality   p95=    88.4 p99=   117.1 viol=1.000 goodput=23.2
+  [C] rho=0.8 CWC                  p95=     4.2 p99=     5.7 viol=0.087 goodput=31.0
+  [C] rho=0.8 StaticBest-cal       p95=     3.1 p99=     3.8 viol=0.010 goodput=31.0
+  [C] rho=0.8 CostGreedy-cal       p95=     3.1 p99=     3.7 viol=0.010 goodput=31.0
+  [C] rho=0.8 Static-BestQuality   p95=   167.2 p99=   190.1 viol=1.000 goodput=30.9
+  [C] rho=1.0 CWC                  p95=     4.9 p99=     6.3 viol=0.297 goodput=38.7
+  [C] rho=1.0 StaticBest-cal       p95=     3.1 p99=     4.4 viol=0.017 goodput=38.7
+  [C] rho=1.0 CostGreedy-cal       p95=     3.0 p99=     3.6 viol=0.007 goodput=38.7
+  [C] rho=1.0 Static-BestQuality   p95=   379.7 p99=   422.5 viol=1.000 goodput=38.2
+{
+  "budgets_ms": [
+    1.54,
+    3.83,
+    9.52,
+    23.66,
+    58.82
+  ],
+  "telemetry_probe_ms_mean": 0.6470474086236209,
+  "reference_capacity_qps": 40.332153555280534
+}

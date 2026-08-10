@@ -1,0 +1,8 @@
+\section{Discussion and Conclusion}
+\label{sec:discussion}
+
+\CWC{} takes a workload-level view of hybrid search: not a new retriever, but a compiler that selects among existing physical plans more effectively than static policies, cost-greedy selection, or scalar/query-only routing, and---uniquely among our baselines---backs each deployment decision with a distribution-free certificate on the SLO-violation rate. This is what the paper solves: it turns plan selection from ``deploy and hope it generalizes'' into an auditable, admission-ready decision over unchanged operators.
+
+We state the limits plainly. Even in the canonical study \CWC{} only \emph{ties} the strongest calibration-aware selectors on mean utility (its differentiator is the certificate, not raw rank), separating from them only once the SLA is the deciding criterion (Section~\ref{subsec:admission}); the audit also only ties StaticBest-cal; and NV-Embed/RankZephyr are not executed as true actions. Under the plug-in contract the bound \emph{empirically upper-bounds the realized violation in every evaluated run} but is \emph{loose} on a 100-query collection (the $\Gamma_\cell/\sqrt{n_\cell}$ term keeps the bound near one), and $\Gamma_\cell$ is an estimated plug-in rather than a theorem-valid quantity; its tightness, not its validity, improves with larger windows. These boundaries match the intended deployment setting: \CWC{} targets workload-window admission and SLO-aware plan selection under a fixed action catalog, not the replacement of end-to-end retriever engineering or the certification of arbitrary shift magnitudes.
+
+Future work tightens the end-to-end $\Gamma_\cell$ UCB (Remark~\ref{rem:rho-ucb}) and extends \CWC{} to more operators and streaming workloads.

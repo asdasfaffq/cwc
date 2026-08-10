@@ -1,0 +1,22 @@
+{
+  "union": {
+    "delta_R_cert_mean": 0.03313716853079052,
+    "delta_R_cert_max": 0.04807839708775047,
+    "delta_viol_mean": 0.0007455222016453018,
+    "delta_viol_max": 0.02840909090909091,
+    "delta_ndcg_mean": 0.0007056457328205611,
+    "delta_ndcg_min": -0.0011598687569196464,
+    "identical_deployed_policy_frac": 0.9333333333333333
+  },
+  "selection": {
+    "delta_R_cert_mean": 0.0026400273011808377,
+    "delta_R_cert_max": 0.061236920165433584,
+    "delta_viol_mean": -0.0006219495570633101,
+    "delta_viol_max": 0.02840909090909091,
+    "delta_ndcg_mean": -0.007740929787310365,
+    "delta_ndcg_min": -0.05044903836732961,
+    "identical_deployed_policy_frac": 0.5066666666666667
+  },
+  "n_runs_per_mode": 75,
+  "upper_bounds_realized_all_modes": true
+}
