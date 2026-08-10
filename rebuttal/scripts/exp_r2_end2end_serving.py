@@ -369,6 +369,11 @@ def main() -> None:
     ap.add_argument("--load-requests", type=int, default=300)
     ap.add_argument("--load-rhos", default="0.6,0.8,1.0")
     ap.add_argument("--n-budgets", type=int, default=5)
+    ap.add_argument("--skip-closed-loop", action="store_true")
+    ap.add_argument("--load-budget-index", type=int, default=1,
+                    help="which SLO of the grid the open-loop test runs at; the "
+                         "load test is only informative at an SLO where routing "
+                         "actually changes the plan mix")
     ap.add_argument("--budgets-ms", default="",
                     help="explicit SLO grid in ms; overrides the quantile rule so a "
                          "rerun uses the same grid even though measured latencies "
@@ -434,7 +439,7 @@ def main() -> None:
     # ---------------- Phase B: closed-loop live replay of the eval window -------
     p_train = {1.0: 0.8, 0.5: 0.5, 0.1: 0.35, 0.02: 0.2}  # cheap strata skew train, hard strata skew eval
     rows, cert_rows = [], []
-    for budget in budgets:
+    for budget in ([] if args.skip_closed_loop else budgets):
         for seed in seeds:
             rng = np.random.default_rng(seed)
             train, ev = [], []
@@ -502,18 +507,21 @@ def main() -> None:
 
     import pandas as pd
     df = pd.DataFrame(rows)
-    df.to_csv(out / "closed_loop_raw.csv", index=False)
-    agg = df.groupby(["budget_ms", "policy"]).agg(
+    if not df.empty:
+        df.to_csv(out / "closed_loop_raw.csv", index=False)
+    agg = (df.groupby(["budget_ms", "policy"]).agg(
         mean_ms=("mean_ms", "mean"), p95_ms=("p95_ms", "mean"), p99_ms=("p99_ms", "mean"),
         slo_violation=("slo_violation", "mean"), ndcg10=("ndcg10", "mean"),
         throughput_qps=("throughput_qps", "mean")).reset_index()
-    agg.to_csv(out / "closed_loop_aggregate.csv", index=False)
-    print(agg.to_string(index=False), flush=True)
+           if not df.empty else pd.DataFrame())
+    if not agg.empty:
+        agg.to_csv(out / "closed_loop_aggregate.csv", index=False)
+        print(agg.to_string(index=False), flush=True)
 
     # ---------------- Phase C: open-loop load test ------------------------------
     print("[C] open-loop Poisson load test (real execution behind a single-server queue)",
           flush=True)
-    budget = budgets[1]
+    budget = budgets[args.load_budget_index]
     seed = args.load_seed
     rng = np.random.default_rng(seed)
     train, ev = [], []

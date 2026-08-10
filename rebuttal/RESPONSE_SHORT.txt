@@ -1,0 +1,80 @@
+RESPONSE TO REVIEWERS -- Paper 214
+(Condensed. Full point-by-point response, all new code, all raw results and the compiled
+revision: https://github.com/asdasfaffq/cwc , directory rebuttal/)
+
+We thank all three reviewers. Two comments changed the paper's content, and we lead with them.
+
+(1) R2's code finding is CORRECT. The released compiler let the calibration split both choose
+and certify the deployed plan; auditing the rest of the data flow we also found the fallback
+was screened on the full training window (selection + calibration). Both are fixed. On 75
+blocks (K in {3,4,6,8,12} x 3 budgets x 5 seeds) with identical splits, cells, seeds and
+Gamma, the repair that matches Prop. 2 verbatim -- decide abstention on the selection split,
+calibrate only the fixed plan -- leaves the certified bound NUMERICALLY IDENTICAL (0.2629 at
+K=4/80 ms) and slightly REDUCES realized violation (-0.0006). An alternative repair that keeps
+the data-dependent rule and pays a union bound over the two candidates per cell costs +0.033
+of bound width and nothing else. The certificate upper-bounds the realized violation in all
+225 runs.
+
+(2) R2 is right that Gamma was assumed, not verified. We no longer estimate it. CWC is
+transductive, so on any operator-declared coarsening BOTH window marginals are observable and
+Gamma_c = max_z Q_c(z)/P_c(z) is COMPUTED, not fitted. The only remaining assumption --
+within-stratum exchangeability -- is testable, and we test it: the train-vs-eval conditional
+loss gap inside each (cell, stratum) is 0.0012 mean, 0.027 max. Making Gamma auditable costs
+5% of bound width (0.298 -> 0.313). It also shows our old plug-in was NOT conservative: it
+would have needed kappa* = 3.95 to dominate the measured budget in every cell. We report this
+against ourselves.
+
+END-TO-END SYSTEM (R1-W2, R2-D4, R3-D2). New serving harness: real BM25 (sparse term-weight
+matrix), hnswlib HNSW over E5-base, RRF, a MiniLM cross-encoder at depth 20/50, and a metadata
+predicate placed PRE (constrained ANN traversal, search list widened as the predicate tightens)
+or POST, over a 100,785-document union of five BEIR collections. Nothing is replayed from
+cached rows: every latency is wall-clock of a real execution, and CWC pays its telemetry probe
+and routing INSIDE the measured path. Pre-filter cost spans 0.48 ms at selectivity 1.0 to
+78.6 ms at 0.02, so filter placement is a genuine decision. At a 100 ms SLO over 5 seeds, CWC
+cuts the realized violation rate of the strongest calibrated static plan by 30x (20.4% ->
+0.7%) while delivering 75% more throughput (27.1 vs 15.4 qps) and 28% lower p95 latency
+(82.1 vs 114.4 ms), at a 3.9% nDCG cost (0.1013 vs 0.1054) -- within a whisker of the ~4%
+the paper reports from cached rows, now obtained by executing every plan. Honest boundary,
+which we state rather than average away: at 10-25 ms SLOs a single cheap plan is optimal for
+every cell, so CWC's probe is pure overhead (0.0953 vs 0.0957 nDCG at half the throughput).
+
+PROSPECTIVE ADMISSION (R2-W2/D2). Redone so the admission DECISION uses only compile-time
+information and only the payoff is settled afterwards. We also removed a confound: the
+certificate is a property of the analysis, not of CWC, so we grant it to EVERY deployment. On
+30 pooled blocks at tau=0.05, under the certificate rule all seven deployments breach 0% of
+the windows they admit; the strongest certificate-free prospective signal breaches 13.0% and a
+plain point estimate 33.3%. CWC's plan passes its own certificate on 96.7% of windows against
+27-33% for the calibrated static plans, so a certified operator serving CWC earns 2.5x the
+utility (0.496 vs 0.200) and beats the CLAIRVOYANT post-hoc rule applied to that baseline
+(0.400). Against us: on this pooled workload Static-SPLADE is itself safe and scores 0.532.
+
+TIGHTNESS (R2-W3/D3). R_cert has a floor Gamma*L_hat plus a 1/sqrt(n) term, so two separate
+conditions govern an SLA level. Sweeping labeled-window size: n_c = 68 -> 688 drives R_cert
+0.368 -> 0.037, valid at every point. tau=0.20 is certified at n_c=121, tau=0.10 at n_c=341,
+and tau=0.05 at n_c=688 (R_cert 0.0435, realized 0.0031). tau=0.01 is sample-size-bound, not
+floor-bound (floor 0.0015), needing n_c ~ 12k. A 5% SLA is therefore certifiable today; the
+0.30 in the submission was the small 3-collection regime, not a property of the bound.
+
+MOTIVATION (R3-D1). Measured rather than asserted: as the workload mix drifts, a calibrated
+fixed plan's SLO violation rises 0.02% -> 12.4%, its p95 latency triples (3.04x) and its
+throughput falls to 37%, while CWC goes 0.15% -> 1.0% with p95 x1.08. The fixed recipes that
+stay safe do so by giving up 7-20 nDCG points (Dense-only 0.533, BM25-only 0.407 vs CWC 0.604).
+
+PRESENTATION. Every item of R1-D1..D14 plus the figure and formatting comments is implemented
+and compiled (24 edits, each keyed to its reviewer item, applied by a script that fails loudly
+if an anchor is missing). Diagnoses: the stray "a)" in Sec. VII is IEEEtran numbering
+\paragraph; the page-6 overlap is a description list whose small-caps labels overran the
+column; Figure 3 was illegible because a 7.2-inch canvas with 5.2-7.5 pt type was included at
+0.50\textwidth (rendering at ~3 pt) -- regenerated at 9 pt base type and enlarged, Figure 1
+likewise. D12 is correct, Table VI had no reference at all. On D10, Table III IS referenced in
+Sec. VII-A, but it lands a page from its pointer, which is the real readability problem and we
+have treated it as such. The revision compiles cleanly; it is 14 pages against the submitted
+13 because of the added provenance and terminology text the reviewers asked for, and we will
+absorb that page in the camera-ready.
+
+ARTIFACT (R3 availability). We re-verified anonymous public access to the URL printed in the
+paper. Independently of the access problem, the release was PARTIAL by design at submission,
+which was the wrong call. It is now complete: the full operator-execution and action-row
+generation pipeline, every script behind every number in the paper, all six experiments above
+with their raw outputs, the serving harness, the regenerated figures, the compiled revision,
+and compressed action rows (3.6 MB) that reproduce every table without a GPU.

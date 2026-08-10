@@ -1,0 +1,2 @@
+[stack] queries=nfcorpus (200), collection=100785 docs (+['arguana', 'fiqa', 'scidocs', 'scifact']), device=cuda
+[A] measuring plan latency/quality (real execution)

@@ -11,7 +11,9 @@ its presentation, and we want to say so up front:
    repaired it in two independent ways, and we measured what the repair costs. It does not
    move the paper's conclusions: at the headline configuration the certified bound is
    **unchanged** (0.2629) under the repair that matches Proposition 2 as written, and the
-   deployed policy, realized violation and nDCG are unchanged to three decimals.
+   realized violation *falls* slightly (0.0014 → 0.0011). The repair does change which plan
+   some cells deploy — in half the runs — at a mean cost of 0.008 nDCG, which we report below
+   rather than round away.
 2. **Reviewer #2's concern that Γ was assumed rather than verified was well founded.** We
    no longer estimate Γ. Because CWC is transductive, both window marginals are observable,
    so Γ can be **computed** on an operator-declared coarsening. Doing so turns the paper's
@@ -22,8 +24,10 @@ Everything below is backed by experiments run for this response. All new code, a
 result files, and the regenerated figures are public at
 **https://github.com/asdasfaffq/cwc** (see `rebuttal/`). We understand the manuscript cannot
 be edited at this stage; we have nevertheless implemented every editorial item and compiled
-the revised manuscript, so the reviewers can check that the fixes are real and that the paper
-still fits its current 13 pages (`rebuttal/paper_revision_preview/`).
+the revised manuscript, so the reviewers can check that the fixes are real
+(`rebuttal/paper_revision_preview/`). It compiles cleanly at 14 pages against the submitted
+13 — the extra page is the provenance and terminology text the reviewers asked for plus the
+enlarged figures — and we say below how we will absorb it.
 
 ---
 
@@ -255,33 +259,38 @@ selectivity 1.0 pre-filtered dense search costs 0.48 ms, at selectivity 0.02 it 
 (nDCG 0.021 vs 0.029 at s = 0.02). SLO levels are fixed a priori as a log-spaced grid between
 the 20th and 95th percentile of the pooled measured plan latency.
 
-**Closed-loop replay of the served window (200 queries × 4 selectivities, 2 seeds, live
-execution):**
+**Closed-loop replay of the served window** (200 queries × 4 selectivities, 5 seeds, SLO grid
+fixed a priori at 10/25/50/100 ms, every number a live execution):
 
 | SLO | Policy | mean ms | p95 ms | SLO violation | nDCG@10 | throughput (qps) |
 |---|---|---|---|---|---|---|
-| **99.9 ms** | **CWC** | **37.8** | **83.8** | **0.000** | 0.1040 | **30.5** |
-| 99.9 ms | StaticBest-cal | 48.5 | 96.8 | **0.134** | 0.1044 | 21.8 |
-| 99.9 ms | Static-BestQuality | 96.9 | 155.6 | 0.389 | 0.1133 | 10.3 |
-| 99.9 ms | CostGreedy-cal | 38.5 | 86.5 | 0.010 | 0.1007 | 26.0 |
-| 45.4 ms | CWC | 6.5 | 19.1 | 0.000 | 0.1017 | 185.7 |
-| 45.4 ms | StaticBest-cal | 1.8 | 3.9 | 0.000 | 0.0999 | 541.1 |
-| 9.4 ms | CWC | 3.6 | 7.4 | 0.000 | 0.0995 | 274.4 |
-| 9.4 ms | StaticBest-cal | 1.6 | 3.4 | 0.000 | 0.0999 | 608.2 |
+| **100 ms** | **CWC** | **39.2** | **82.1** | **0.007** | 0.1013 | **27.1** |
+| 100 ms | StaticBest-cal | 67.5 | 114.4 | **0.204** | 0.1054 | 15.4 |
+| 100 ms | CostGreedy-cal | 55.9 | 100.8 | 0.082 | 0.1046 | 17.9 |
+| 100 ms | Static-BestQuality | 84.1 | 133.9 | 0.372 | 0.1079 | 11.9 |
+| 100 ms | Static-Fallback | 28.9 | 63.2 | 0.000 | 0.0967 | 155.6 |
+| 50 ms | CWC | 7.5 | 26.4 | 0.009 | 0.0972 | 181.5 |
+| 50 ms | StaticBest-cal | 1.6 | 3.4 | 0.000 | 0.0957 | 619.0 |
+| 25 ms | CWC | 3.2 | 7.0 | 0.000 | 0.0953 | 315.7 |
+| 25 ms | StaticBest-cal | 1.6 | 3.4 | 0.000 | 0.0957 | 621.7 |
+| 10 ms | CWC | 3.2 | 7.1 | 0.000 | 0.0953 | 310.8 |
+| 10 ms | StaticBest-cal | 1.6 | 3.5 | 0.000 | 0.0957 | 610.6 |
 
-At the binding SLO the systems result is unambiguous and it reproduces, under real execution,
-the effect the paper claimed from cached rows: **CWC removes the SLO violations of the
-strongest calibrated static plan (13.4% → 0.0%) at statistically indistinguishable quality
-(0.1040 vs 0.1044), while delivering 40% more throughput (30.5 vs 21.8 qps) and 13% lower p95
-latency (83.8 vs 96.8 ms).** On the smaller NFCorpus-only stack the same effect appears as
-**3.6× throughput at equal-or-better quality** (137.8 vs 38.4 qps, nDCG 0.1352 vs 0.1335 at
-the 58.8 ms SLO).
+At the binding SLO the result reproduces, under real execution, exactly the effect the paper
+claimed from cached rows: **CWC cuts the realized SLO-violation rate of the strongest
+calibrated static plan by 30× (20.4% → 0.7%) while delivering 75% more throughput
+(27.1 vs 15.4 qps) and 28% lower p95 latency (82.1 vs 114.4 ms), at a 3.9% nDCG cost
+(0.1013 vs 0.1054)** — a quality cost within a whisker of the ≈4% the paper reports from the
+cached-row study, obtained here by executing every plan. On the smaller NFCorpus-only stack
+the same mechanism appears as **3.6× throughput at equal-or-better quality** (137.8 vs
+38.4 qps, nDCG 0.1352 vs 0.1335 at that stack's 58.8 ms SLO).
 
-We also report, plainly, where CWC does not pay: at the two tight SLOs a single cheap plan is
-optimal for every cell, so CWC's telemetry probe (p95 4.7 ms on the 100k-document index) is
-pure overhead — it costs about 2 ms per query and 2.2× throughput for no quality gain. The
-routing layer is worth its cost exactly when the plan frontier is cell-dependent, which is
-the regime the paper is about; we would rather state that boundary than average it away.
+We also report, plainly, where CWC does not pay. At 10–25 ms a single cheap plan is optimal
+for every cell, so CWC's telemetry probe (p95 4.7 ms on the 100k-document index) is pure
+overhead: 0.0953 vs 0.0957 nDCG at half the throughput. At 50 ms CWC buys +1.6% nDCG but
+introduces a 0.9% violation rate where the static plan had none. The routing layer earns its
+cost exactly when the plan frontier is cell-dependent — which is the regime the paper is about
+— and we would rather mark that boundary than average it away.
 
 ## W1 — "the technical novelty is ML/statistical; the systems contribution appears comparatively modest"
 
@@ -308,7 +317,11 @@ of leading with the certificate.
 Accepted without reservation. Every item in D1–D14 is implemented in
 `rebuttal/paper_revision_preview/`, applied by a script that fails loudly if an anchor is
 missing (`rebuttal/apply_presentation_fixes.py`, 24 edits), and the result compiles cleanly at
-**the same 13 pages** as the submission.
+14 pages against the submitted 13. The extra page is the added provenance, terminology and
+baseline-definition text (D6, D7, D11) together with the enlarged figures; the added text
+alone still fits in 13. We will absorb it in the camera-ready by moving the two pilot-ablation
+panels of Figure 3 to the artifact, which the enlargement makes natural, and we have already
+removed one summary sentence that restated its own paragraph.
 
 | Item | What we changed |
 |---|---|
