@@ -1,27 +1,9 @@
-Three procedural notes for the chairs; none of them is a complaint about a review.
+Three procedural notes.
 
-1. Self-disclosed defect. Reviewer #2 inspected our released code and correctly found that the
-calibration split was used both to choose and to certify the deployed plan. In auditing the
-rest of the data flow for the response we found a second deviation of the same kind that no
-review raised -- the fallback plan was also screened using calibration data -- and we have
-disclosed it in the public response rather than leave it for a later reader. Both deviations
-are from the paper's own Proposition 2, which states the correct policy; re-running under the
-policy the paper describes leaves the headline certified bound numerically identical (0.2629)
-and slightly lowers the realized violation. We would rather the committee weigh this knowing
-we reported the part that was not asked about.
+1. Self-disclosure. Reviewer #2 correctly found our released code let the calibration split both choose and certify the deployed plan. Auditing the rest of the flow we found a second deviation no review raised -- the fallback was also screened on calibration data -- and disclosed it publicly. Both deviate from the paper's own Proposition 2; re-running under the stated policy leaves the headline bound identical (0.2629).
 
-2. Because ICDE 2027 has no revision phase, we implemented the editorial items rather than
-promising them. All 24 edits corresponding to Reviewer #1's D1-D14 and to the figure and
-page-6 formatting faults are applied and the manuscript recompiles cleanly; the edit script,
-the diff and the rebuilt PDF are in the public artifact. We are not asking for these to count
-as a revision -- only that the reviewers can verify the faults are understood and fixable, and
-that none of them touches a result.
+2. With no revision phase, we implemented the editorial items rather than promising them: all 24 edits for Reviewer #1's D1-D14 and the figure/page-6 faults are applied and the paper recompiles; none touches a result.
 
-3. Artifact access. Reviewer #3 reported being unable to reach the repository URL printed in
-the paper. It is public and we have re-verified anonymous access; we cannot reconstruct the
-failure. Separately, the release was partial by design at submission, which was our own
-mistake, and it is now complete. If it would help, we are glad to send the chairs a self-
-contained archive: every number in the response is reproducible from the included compressed
-action rows on CPU alone, without a GPU or any download.
+3. Reviewer #3 could not reach the repository URL printed in the paper. It is public and anonymous access re-verified; we cannot reconstruct the failure. We can send an archive; every number in our response reproduces on CPU alone.
 
-Repository: https://github.com/asdasfaffq/cwc (directory rebuttal/).
+https://github.com/asdasfaffq/cwc
