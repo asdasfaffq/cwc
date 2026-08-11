@@ -269,15 +269,16 @@ union of five BEIR collections** (NFCorpus queries against NFCorpus + FiQA + Sci
 costs 0.48 ms at selectivity 1.0 and **78.6 ms at selectivity 0.02** — a 164× spread — while
 post-filtering stays at 0.45 ms and loses quality (nDCG 0.021 vs 0.029 at s = 0.02).
 
-The SLO grid is fixed a priori, and *relative to the measured latency distribution* rather
-than in absolute milliseconds: log-spaced between the 20th and 95th percentile of the pooled
-per-plan latency measured in that same run. We flag this deliberately. Absolute millisecond
-budgets are machine-dependent — repeating the experiment while five unrelated jobs occupied
-the CPU made every plan 20–25% slower, which moves a fixed 100 ms budget across the knee of
-the latency distribution and changes which plans are feasible. Defining the SLO by a quantile
-of the run's own measurements keeps the comparison scale-free, and it is why we report ratios
-(violation reduction, throughput gain, p95 reduction) as the headline rather than absolute
-latencies.
+The SLO grid is fixed a priori and never tuned to an outcome: it is log-spaced between the
+20th and 95th percentile of the pooled per-plan latency measured in the same run, which on
+this machine evaluates to 9.4/20.7/45.4/99.9 ms; the table below reports at the rounded levels
+10/25/50/100 ms. We flag one thing we learned while repeating the experiment: an SLO stated in
+absolute milliseconds is machine-dependent. Re-running while five unrelated jobs occupied the
+CPU made every plan 20–25% slower, which moves a fixed 100 ms budget across the knee of the
+latency distribution and changes which plans are feasible. The quantile definition keeps the
+operating point scale-free, and it is why we treat the *ratios* — violation reduction,
+throughput gain, p95 reduction — as the headline rather than absolute latencies. Both the
+quantile-defined and the fixed-millisecond runs are in the artifact.
 
 **Closed-loop replay of the served window** (200 queries × 4 selectivities, 5 seeds):
 
@@ -301,6 +302,15 @@ plan by 30× (20.4% → 0.7%) while delivering 75% more throughput (27.1 vs 15.4
 lower p95 latency (82.1 vs 114.4 ms), at a 3.9% nDCG cost** — within a whisker of the ≈4% the
 paper reports from the cached-row study, now obtained by executing every plan. On the smaller
 NFCorpus-only stack the same mechanism appears as 3.6× throughput at equal-or-better quality.
+
+We are careful about what this experiment is and is not. It has 5 window-assignment seeds, and
+**every one of the 5 favours CWC on violation, p95 and throughput against every baseline**
+(one-sided Wilcoxon, per-comparison p = 0.031; with only 5 seeds a Holm correction over four
+baselines cannot reach 0.05, so we report per-comparison values and do not claim family-wise
+significance here). The paper's statistical claim continues to rest on the 45-block study with
+Holm-corrected tests; this experiment's job is to show that the same effect survives when the
+plans are actually executed on real indexes, and it does, at an effect size — a 30× reduction
+in violations — that is not in question at this sample size.
 
 **Under load.** We also drive the same stack open-loop, with Poisson arrivals into a
 single-server queue that executes every request, scoring the SLO against *response* time

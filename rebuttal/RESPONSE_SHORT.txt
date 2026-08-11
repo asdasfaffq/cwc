@@ -35,7 +35,11 @@ Pre-filter cost spans 0.48 ms at selectivity 1.0 to 78.6 ms at 0.02, so placemen
 decision. At a 100 ms SLO over 5 seeds, CWC cuts the realized violation rate of the strongest
 calibrated static plan by 30x (20.4% -> 0.7%) with 75% more throughput (27.1 vs 15.4 qps) and
 28% lower p95 (82.1 vs 114.4 ms), at a 3.9% nDCG cost -- within a whisker of the ~4% the paper
-reports from cached rows, now obtained by executing every plan. Open loop (Poisson arrivals
+reports from cached rows, now obtained by executing every plan. All 5 seeds favour CWC
+on violation, p95 and throughput against every baseline (one-sided Wilcoxon, per-comparison
+p=0.031); with 5 seeds a Holm correction over four baselines cannot reach 0.05, so we report
+per-comparison values, and the paper's statistical claim continues to rest on the 45-block
+study. Open loop (Poisson arrivals
 into a queue that executes every request; SLO scored on response time): CWC's saturation
 capacity is 21.2 qps vs 18.0 for the strongest calibrated static plan and 12.2 for the
 best-quality one, and its response p95 advantage WIDENS with load -- 175 vs 226 ms, 219 vs

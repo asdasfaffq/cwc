@@ -36,10 +36,10 @@ def holm(pvals: dict[str, float]) -> dict[str, float]:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--raw", type=Path,
-                    default=Path("rebuttal/results/r2_end2end_10seed/closed_loop_raw.csv"))
+                    default=Path("rebuttal/results/r2_end2end_union_final/closed_loop_raw.csv"))
     ap.add_argument("--candidate", default="CWC")
     ap.add_argument("--output", type=Path,
-                    default=Path("rebuttal/results/r2_end2end_10seed/significance.json"))
+                    default=Path("rebuttal/results/r2_end2end_union_final/significance.json"))
     args = ap.parse_args()
 
     d = pd.read_csv(args.raw)

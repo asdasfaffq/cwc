@@ -96,7 +96,7 @@ def panel_drift(ax, path: Path, budget: float) -> None:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--e2e", type=Path,
-                    default=ROOT / "rebuttal/results/r2_end2end_10seed/closed_loop_aggregate.csv")
+                    default=ROOT / "rebuttal/results/r2_end2end_union_final/closed_loop_aggregate.csv")
     ap.add_argument("--e2e-budget", type=float, default=100.0)
     ap.add_argument("--tightness", type=Path,
                     default=ROOT / "rebuttal/results/r5_tightness_map/aggregate.csv")
