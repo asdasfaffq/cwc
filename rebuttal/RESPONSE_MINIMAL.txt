@@ -1,0 +1,69 @@
+RESPONSE -- Paper 214.  Full point-by-point reply, all new code and raw results, and the
+compiled revision: https://github.com/asdasfaffq/cwc (rebuttal/). Anonymous access verified.
+
+Two reviewer findings changed the paper's content; we lead with them.
+
+R2, CODE. Correct: the released compiler let the calibration split both choose and certify the
+deployed plan. Auditing the rest of the data flow we found a second instance no review raised
+(the fallback was also screened on calibration data) and report it here. Both fixed. On 75
+blocks with identical splits, the repair matching Prop. 2 verbatim leaves the certified bound
+NUMERICALLY IDENTICAL (0.2629 at K=4/80 ms) and lowers realized violation (0.0014 -> 0.0011);
+a union-bound alternative costs +0.033 and nothing else. Bound >= realized in 225/225 runs.
+
+R2-W1/D1, GAMMA. We no longer estimate it. CWC is transductive, so on any operator-declared
+coarsening both window marginals are observable and Gamma_c = max_z Q_c(z)/P_c(z) is COMPUTED.
+The remaining assumption (within-stratum exchangeability) is testable and passes: train-vs-eval
+conditional-loss gap 0.0012 mean, 0.027 max. Cost: 0.298 -> 0.313 bound width. It also shows
+our plug-in was NOT conservative (needed kappa*=3.95) -- reported against ourselves. Recipe:
+declare the coarsest partition you accept, compute Gamma from the observed marginals, run the
+gap test on historical windows, refine until it passes.
+
+R1-W2 / R2-D4 / R3-D2, END-TO-END. New harness, all real: sparse-matrix BM25, hnswlib HNSW over
+E5-base, RRF, MiniLM cross-encoder, metadata predicate placed PRE (constrained ANN traversal)
+or POST, over a 100,785-document union of five BEIR collections. No cached rows; CWC pays its
+probe and routing inside the measured path. Pre-filter cost spans 0.48 ms (selectivity 1.0) to
+78.6 ms (0.02), so placement is a real decision. At a 100 ms SLO, 5 seeds: CWC cuts the
+strongest calibrated static plan's realized violation 30x (20.4% -> 0.7%), with +75% throughput
+(27.1 vs 15.4 qps) and -28% p95 (82.1 vs 114.4 ms), at 3.9% nDCG cost -- matching the ~4% the
+paper claimed from cached rows. Open-loop: CWC's capacity is 21.2 qps vs 18.0 and 12.2, and its
+response-p95 advantage widens with load (175 vs 226, 219 vs 450, 429 vs 1074 ms). Boundary we
+state rather than hide: at 10-25 ms SLOs one cheap plan is optimal everywhere, so the probe is
+pure overhead (0.0953 vs 0.0957 nDCG at half the throughput).
+
+R2-W2/D2, ADMISSION. Redone so the DECISION uses only compile-time information, and the
+certificate is granted to EVERY deployment (it is a property of the analysis, not of CWC),
+separating the rule from the policy. 30 blocks, tau=0.05: under the certificate rule all seven
+deployments breach 0% of admitted windows; the best certificate-free prospective signal
+breaches 13.0%, a point estimate 33.3%. CWC passes its own certificate on 96.7% of windows vs
+26.7-33.3% for calibrated static plans, earning 2.5x the utility (0.496 vs 0.200) and beating
+the clairvoyant post-hoc rule applied to that baseline (0.400).
+
+R2-W3/D3, TIGHTNESS. R_cert has a floor Gamma*L_hat plus a 1/sqrt(n) term. Sweeping window
+size, n_c 68 -> 688 gives R_cert 0.368 -> 0.037, valid throughout: tau=0.20 at n_c=121,
+tau=0.10 at n_c=341, tau=0.05 at n_c=688 (R_cert 0.0435, realized 0.0031). tau=0.01 is
+sample-size-bound (floor 0.0015), needing n_c ~ 12k. The 0.30 in the submission was the small
+3-collection regime, not a property of the bound.
+
+R3-D1, MOTIVATION. Measured: as the mix drifts, a calibrated fixed plan's violation rises
+0.02% -> 12.4%, p95 triples (3.04x), throughput falls to 37%; CWC goes 0.15% -> 1.0% at p95
+x1.08. Safe fixed recipes give up 7-20 nDCG points (0.533 / 0.407 vs 0.604).
+
+R1-W1 + RELEVANCE. The object is physical-plan selection under a resource constraint; the unit
+of decision is the workload, as in physical database design, and that choice is what makes the
+guarantee affordable (observed cell masses mean only K within-cell expectations carry risk,
+where a per-query certifier pays log M instead of log K, Prop. 3); the output is an SLA
+admission decision; and it is now evaluated as a system, with tail latency, throughput and
+queueing. We claim the design point and the system, not a new inequality.
+
+R1-W3 + FIGURES. All of D1..D14 and the formatting items are implemented and compiled (24
+edits, each keyed to its item, applied by a script that fails loudly on a missing anchor).
+Diagnoses: the stray "a)" is IEEEtran numbering \paragraph; the page-6 overlap is a description
+list overrunning the column; Figure 3 was illegible because a 7.2-inch canvas with 5.2-7.5 pt
+type was included at 0.50\textwidth -- regenerated at 9 pt and enlarged, as was Figure 1. D12
+is correct (Table VI unreferenced); D10's Table III is referenced but lands a page away, which
+we treat as the real readability problem.
+
+R3, ARTIFACT. The release was partial by design at submission, which was the wrong call. It is
+now complete: full pipeline, six new experiments with raw outputs, the serving harness, the
+regenerated figures, the compiled revision, and compressed action rows (3.6 MB) that reproduce
+every table without a GPU.

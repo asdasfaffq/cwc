@@ -1,46 +1,72 @@
 # Response to Reviewers — Paper 214
 
-**Title.** Certified Workload-Window Plan Selection for Hybrid Vector Search under SLOs
-**Track.** ICDE 2027 Research, First Round
+**Certified Workload-Window Plan Selection for Hybrid Vector Search under SLOs**
+ICDE 2027 Research Track, First Round
 
-We thank all three reviewers. Two comments changed the paper's technical content rather than
-its presentation, and we want to say so up front:
+We are grateful for three careful reviews. Two of them changed the paper's technical content,
+not just its presentation, and we lead with those rather than bury them.
 
-1. **Reviewer #2 found a real defect in our released code** (the calibration split was used
-   both to choose and to certify the deployed plan). The observation is correct, we have
-   repaired it in two independent ways, and we measured what the repair costs. It does not
-   move the paper's conclusions: at the headline configuration the certified bound is
-   **unchanged** (0.2629) under the repair that matches Proposition 2 as written, and the
-   realized violation *falls* slightly (0.0014 → 0.0011). The repair does change which plan
-   some cells deploy — in half the runs — at a mean cost of 0.008 nDCG, which we report below
-   rather than round away.
-2. **Reviewer #2's concern that Γ was assumed rather than verified was well founded.** We
-   no longer estimate Γ. Because CWC is transductive, both window marginals are observable,
-   so Γ can be **computed** on an operator-declared coarsening. Doing so turns the paper's
-   one unverified input into a measured quantity — and it shows that our old plug-in
-   estimate did **not** dominate the measured budget (it would have needed κ\*=3.95).
+**Reviewer #2 read our code and found a real defect.** The released compiler let the
+calibration split both *choose* and *certify* the deployed plan, which breaks the
+independence assumption Proposition 2 relies on. The finding is correct. Auditing the rest of
+the data flow we found a second instance the review did not mention — the fallback plan was
+also screened using calibration data — and we report it here rather than wait for someone
+else to find it. Both are fixed, and we measured what the fix costs: **at the headline
+configuration the certified bound is numerically unchanged (0.2629) and the realized violation
+falls slightly.**
 
-Everything below is backed by experiments run for this response. All new code, all raw
-result files, and the regenerated figures are public at
-**https://github.com/asdasfaffq/cwc** (see `rebuttal/`). We understand the manuscript cannot
-be edited at this stage; we have nevertheless implemented every editorial item and compiled
-the revised manuscript, so the reviewers can check that the fixes are real
-(`rebuttal/paper_revision_preview/`). It compiles cleanly at 14 pages against the submitted
-13 — the extra page is the provenance and terminology text the reviewers asked for plus the
-enlarged figures — and we say below how we will absorb it.
+**Reviewer #2 was also right that Γ was assumed rather than verified.** We no longer estimate
+it. Because CWC is transductive it already holds the incoming window's unlabeled telemetry, so
+on any operator-declared coarsening both window marginals are *observable* and
+Γ_c = max_z Q_c(z)/P_c(z) can be **computed**. That turns the paper's one unverified input into
+a measured quantity, at a cost of 5% in bound width — and it shows our old plug-in estimate
+was **not** conservative (it would have needed κ\* = 3.95). We report that against ourselves.
+
+Six new experiments were run for this response. All code, all raw result files, the
+regenerated figures and the compiled revision are public at
+**https://github.com/asdasfaffq/cwc** (directory `rebuttal/`); anonymous access re-verified.
 
 ---
 
-## New experiments run for this response
+## The evidence in five numbers
 
-| # | Experiment | Answers | Artifact |
-|---|-----------|---------|----------|
-| E1 | Certificate/implementation repair, 3 abstain rules on identical splits, 75 blocks | R2 availability | `rebuttal/scripts/exp_r1_certificate_repair.py` |
-| E2 | End-to-end serving on a real hybrid stack: live execution, latency, throughput, open-loop load test | R1-W2, R2-D4, R3-D2 | `rebuttal/scripts/exp_r2_end2end_serving.py` |
-| E3 | Γ made observable + falsification test of the remaining assumption | R2-W1, R2-D1 | `rebuttal/scripts/exp_r3_gamma_audit.py` |
-| E4 | Admission control decided **before** execution, 4 rules × 7 deployments | R2-W2, R2-D2 | `rebuttal/scripts/exp_r4_prospective_admission.py` |
-| E5 | Where the certificate is tight enough for a real SLA; floor vs sample-size split | R2-W3, R2-D3 | `rebuttal/scripts/exp_r5_tightness_map.py` |
-| E6 | Measured brittleness of fixed recipes under workload drift | R3-D1 | `rebuttal/scripts/exp_r6_drift_motivation.py` |
+| Claim | Measurement |
+|---|---|
+| The certificate repair does not move the result | Bound **0.2629 → 0.2629** under the Prop.-2-faithful repair; valid in **225/225** runs |
+| Γ is now measured, not assumed | **0.298 → 0.313** bound width; the exchangeability assumption that remains survives a direct falsification test (gap **0.0012** mean) |
+| The method works end-to-end on a real engine | On a live 100,785-document hybrid stack at a 100 ms SLO: SLO violations **20.4% → 0.7%**, throughput **+75%**, p95 **−28%**, nDCG cost **3.9%** |
+| The certificate is usable at a real SLA | **τ = 0.05 certified** at n_c = 688 (R_cert = 0.0435, realized 0.0031) |
+| Admission decided before execution is sound | Under the certificate rule **0 breaches across all 7 deployments**; the best certificate-free prospective signal breaches **13.0%**, a point estimate **33.3%** |
+
+---
+
+## On relevance to ICDE (Reviewer #1 marked this "Borderline")
+
+We would like to make the case explicitly, because we believe the fit is closer than the
+submitted version conveyed.
+
+The object of the paper is **physical-plan selection under a resource constraint** — the
+field's core problem, applied to the hybrid/vector operators that data systems now ship. Three
+things place it inside the database agenda rather than beside it:
+
+1. **The unit of decision is the workload, not the query.** This is the same unit as physical
+   database design: index and materialized-view selection have always been workload-level
+   problems [9], and we argue plan *binding* for hybrid retrieval should be too. Proposition 3
+   makes the systems consequence precise: because a serving window's cell masses are observed
+   exactly, only K within-cell expectations carry statistical risk, whereas a per-query
+   certifier pays log M instead of log K. The unit choice is what makes the guarantee
+   affordable — a systems argument, not a statistical one.
+2. **The output is an admission decision under an SLA**, i.e. a resource-management artifact a
+   DBMS can act on before serving traffic, not a post-hoc quality report (§VII-D, now redone
+   prospectively).
+3. **It is now evaluated as a system.** The new experiment executes every selected plan
+   against real indexes — sparse-matrix BM25, HNSW, RRF, a cross-encoder, and a metadata
+   predicate placed pre- or post-retrieval — and reports service latency, tail latency,
+   throughput, and behaviour under open-loop arrivals into a queue.
+
+We do not claim a new retriever or a new concentration inequality, and we say so in the paper.
+We claim a query-optimizer design point for hybrid search and the system that makes it
+operational.
 
 ---
 
@@ -48,115 +74,108 @@ enlarged figures — and we say below how we will absorb it.
 
 ## Availability — "the same calibration data is used both to select the deployed plan and to certify it"
 
-**The reviewer is right, and we thank them for reading the code this carefully.** In
-`scripts/certified_window_compiler.py` the abstain decision compared calibration-based
-certificate terms for the bound plan and the fallback and deployed the smaller one, while
-Proposition 2 states that the deployed plan is fixed on the selection split. That is a
-genuine violation of Assumption 1(iii) in the *implementation*, and the stated certificate
-did not apply to the policy the code ran.
+**You are right, and thank you for reading the implementation this closely.** In
+`certified_window_compiler.py` the abstain decision compared calibration-based certificate
+terms for the bound plan and the fallback and deployed whichever was smaller, while
+Proposition 2 states the deployed plan is fixed on the selection split. Assumption 1(iii) was
+violated in the implementation, so the stated certificate did not apply to the policy the code
+actually ran.
 
-**Auditing the rest of the data flow, we found a second instance of the same defect that the
-reviewer did not mention.** The *fallback* plan was screened by
-`action_train_violation()` over `train_items`, i.e. over the selection split **and** the
-calibration split. So the fallback — the plan a cell deploys when it abstains — was also a
-function of calibration labels. We report this because it is the same error and would have
-been found by the next careful reader. Both are fixed: in the repaired implementation the
-fallback is screened on the selection split alone, as Assumption 1(iii) requires.
+**A second instance, which the review did not raise, was found when we audited the rest of the
+data flow.** The fallback was screened by `action_train_violation()` over `train_items` — the
+selection split *and* the calibration split — so the plan a cell falls back to was also a
+function of calibration labels. Both defects are fixed: the fallback is now screened on the
+selection split alone.
 
-We then repaired the abstain rule in two ways and measured the cost of each on identical
-splits, cells, seeds and Γ, so the difference is attributable to the abstain rule alone
-(E1: K ∈ {3,4,6,8,12} × budgets {80,120,160} ms × 5 seeds = 75 blocks per mode):
+We repaired the abstain rule in two ways and measured each on identical splits, cells, seeds
+and Γ, so any difference is attributable to the abstain rule alone
+(E1: K ∈ {3,4,6,8,12} × budgets {80,120,160} ms × 5 seeds = 75 blocks per rule):
 
-| Abstain rule | Valid? | ΔR_cert vs released (mean / max) | Δrealized violation | ΔnDCG | Same deployed policy |
+| Abstain rule | Valid | ΔR_cert (mean / max) | Δviolation | ΔnDCG | Identical policy |
 |---|---|---|---|---|---|
 | as released | **no** | — | — | — | — |
-| **(a) selection-split** — decide on the selection split, calibrate only the fixed plan; this is Proposition 2 verbatim, log(K/δ) | yes | **+0.0026 / +0.0612** | **−0.0006** | −0.0077 | 50.7% |
-| **(b) union bound** — keep the data-dependent rule, pay log(2·2K/δ) so the bound holds simultaneously for both candidates in every cell | yes | **+0.0330 / +0.0481** | +0.0007 | +0.0007 | 93.3% |
+| **(a) selection-split** — decide on the selection split, calibrate only the already-fixed plan. Proposition 2 verbatim, log(K/δ) | yes | **+0.0026 / +0.0612** | **−0.0006** | −0.0077 | 50.7% |
+| **(b) union bound** — keep the data-dependent rule and pay log(2·2K/δ), so the bound covers both candidates in every cell | yes | **+0.0330 / +0.0481** | +0.0007 | +0.0007 | 93.3% |
 
-At the paper's headline configuration (K=4, 80 ms) the numbers are:
+At the paper's headline configuration (K = 4, 80 ms):
 
-| | R_cert | realized violation | nDCG |
-|---|---|---|---|
-| as released | 0.2629 | 0.0014 | — |
-| (a) selection-split | **0.2629** | 0.0011 | — |
-| (b) union bound | 0.2866 | 0.0014 | — |
+| | R_cert | realized violation |
+|---|---|---|
+| as released | 0.2629 | 0.0014 |
+| **(a) selection-split** | **0.2629** | **0.0011** |
+| (b) union bound | 0.2866 | 0.0014 |
 
-One clarification so these numbers are not misread against the submitted paper. All three
-rows above already use the repaired *fallback* screening (selection split only), which is why
-they sit at 0.263 rather than the 0.298 printed in Table IV: moving the fallback screen off
-the calibration split accounts for that difference on its own. Within this like-for-like
-comparison, repair (a) — the one that makes the code match the proposition we actually stated
-— leaves the certificate **numerically identical** to the released abstain rule and *reduces*
-the realized violation slightly. Repair (b) is an alternative for practitioners who prefer the
-data-dependent rule; it costs +0.033 of bound width and nothing else. Across all 225 runs
-(3 modes × 75 blocks) the certificate upper-bounds the realized violation without exception.
+So the repair that makes the code match the proposition we stated leaves the certificate
+numerically identical and *lowers* the realized violation. It does change which plan some
+cells deploy — in half the runs — at a mean cost of 0.008 nDCG, which we report rather than
+round away. Repair (b) is offered for practitioners who prefer the data-dependent rule; it
+costs +0.033 of bound width and nothing else. Across all 225 runs the certificate
+upper-bounds the realized violation without exception.
 
-We have replaced the released implementation with (a) and documented (b) as an option. The
-paper's Proposition 2 text is unchanged and now describes the code exactly.
+One calibration for reading these against the submitted paper: all three rows already use the
+repaired *fallback* screening, which is why they sit at 0.263 rather than the 0.298 in
+Table IV — moving the fallback screen off the calibration split accounts for that difference
+on its own. We have replaced the released implementation with (a) and documented (b).
 
-## W1 / D1 — "the certificate requires a valid upper bound on Γ_c … the fully certified alternative is too loose"
+## W1 / D1 — "the certificate requires a valid upper bound on Γ_c … please explain how an operator should choose or validate it"
 
-We agree that a plug-in Γ with no guarantee is the weakest link, and we have removed the
-plug-in step rather than defending it.
+We agree this was the weakest link, and we removed the estimation step rather than defend it.
 
-**The key observation is that Γ does not have to be estimated.** CWC is transductive: at
-compile time it already holds the *unlabeled* telemetry of the window it is about to serve.
-So for any coarsening Z that the operator declares (selectivity band, tenant, query class,
-filter-cost bucket), **both** window marginals P_c(z) and Q_c(z) are directly observable and
+**Γ does not have to be estimated.** CWC is transductive: at compile time it holds the
+unlabeled telemetry of the window it is about to serve. So for any coarsening Z the operator
+declares — selectivity band, tenant, query class, filter-cost bucket — *both* window marginals
+P_c(z) and Q_c(z) are observable, and
 
-  Γ_c^obs = max_{z : Q_c(z)>0} Q_c(z)/P_c(z)
+  Γ_c^obs = max_{z : Q_c(z) > 0} Q_c(z) / P_c(z)
 
-is *counted*, not fitted. Under (A2′) within-stratum exchangeability — conditional on
-(cell, stratum), the two windows draw from the same law — the change-of-measure step of
-Proposition 2 goes through unchanged with this computed Γ. The assumption we cannot verify
-therefore shrinks from "the density ratio is bounded by a number we estimated" to "queries in
-the same cell *and same declared stratum* are exchangeable across windows", which is
-**testable**, and we test it.
+is counted, not fitted. Under (A2′) within-stratum exchangeability — conditional on (cell,
+stratum), the two windows draw from the same law — the change-of-measure step of Proposition 2
+goes through unchanged with this computed Γ. The unverifiable part therefore shrinks from "the
+density ratio is bounded by a number we estimated" to "queries in the same cell *and the same
+declared stratum* are exchangeable across windows", which is testable — and we test it.
 
-E3 (K=4, 3 budgets × 5 seeds = 15 blocks, canonical 3-dataset workload):
+E3, K = 4, 3 budgets × 5 seeds = 15 blocks on the canonical workload:
 
 | Declared coarsening | Γ_obs mean / max | R_cert | realized | valid | cells with an unseen stratum |
 |---|---|---|---|---|---|
 | selectivity | 2.94 / 7.16 | **0.313** | 0.0009 | 15/15 | 0.2 |
 | selectivity × probe-latency (2 bins) | 2.72 / 8.11 | 0.484 | 0.0009 | 15/15 | 0.8 |
 | selectivity × probe-latency (4 bins) | 3.62 / 10.95 | 0.570 | 0.0009 | 15/15 | 1.0 |
-| … × BM25-top-score (2 bins) | ∞ (some cells) | 0.713 | 0.0009 | 15/15 | 3.0 |
+| … × BM25-top-score (2 bins) | ∞ in some cells | 0.713 | 0.0009 | 15/15 | 3.0 |
 
-Three things follow, and we report all three including the one that is unflattering to us:
+Three consequences, including the one that does not favour us:
 
-* **The reviewer's concern was substantiated.** The plug-in Γ̂ (mean 3.01) did **not**
-  dominate the measured Γ_obs in every cell in any run; it would have needed inflation
-  κ\* = 3.95 to do so. The paper's plug-in bound was therefore not conservative in the way
-  we implicitly assumed, and we no longer report it as the headline.
-* **Making Γ auditable is nearly free.** The valid, measured bound is 0.313 against the
-  plug-in's 0.298 — about 5% wider, not an order of magnitude.
-* **(A2′) survives a direct falsification attempt.** Comparing the deployed plan's
-  conditional loss on the train vs the eval window inside each (cell, stratum) with ≥10
-  points on each side, the mean gap is 0.0012 and the largest single gap is 0.027.
+* **Your concern was substantiated.** The plug-in Γ̂ (mean 3.01) did **not** dominate the
+  measured Γ_obs in every cell in a single run; it would have needed κ\* = 3.95. The submitted
+  headline bound was therefore not conservative in the way we implicitly assumed, and we no
+  longer present it that way.
+* **Auditing Γ is nearly free.** The valid, measured bound is 0.313 against the plug-in's
+  0.298 — about 5% wider, not an order of magnitude.
+* **(A2′) survives a direct attempt to falsify it.** Comparing the deployed plan's conditional
+  loss on the train versus the eval window inside every (cell, stratum) with ≥10 points on each
+  side, the mean gap is **0.0012** and the largest single gap is **0.027**.
 
-The coarsening is now an explicit operator knob with a visible dose–response: coarser means a
-smaller Γ and a stronger exchangeability assumption; finer means a weaker assumption, a
-larger Γ, and eventually eval strata unseen in training, at which point the bound correctly
-returns the trivial value 1 for those cells. **Operational recipe:** declare the coarsest
-partition on which you are willing to assume exchangeability, run the (cell, stratum) gap
-test above on historical window pairs, and refine the partition until the test passes.
+**Operational recipe**, which is what D1 asked for: declare the coarsest partition on which you
+are willing to assume exchangeability; compute Γ_c from the two observed marginals; run the
+(cell, stratum) gap test above on historical window pairs; refine the partition until the test
+passes. The dose–response is visible and monotone — coarser gives a smaller Γ and a stronger
+assumption, finer gives a weaker assumption and a larger Γ, and when a served stratum is absent
+from training the bound correctly returns the trivial value 1 for that cell rather than a
+number the operator should not believe.
 
 ## W2 / D2 — "the admission-control experiment is not clearly certificate-driven"
 
-Correct, and we have redone it. In the paper the block's payoff was gated on its *realized*
+Correct, and we redid it. In the submitted version a block's payoff was gated on its *realized*
 violation, so the objective was retrospective even though the intent was prospective.
 
-In E4 the admission **decision** uses only quantities computable at compile time, and only
-the payoff is settled afterwards: admit iff signal ≤ τ; a withheld window earns 0; an admitted
-window earns nDCG@10 if it stays within τ and −1 if it breaches.
+In E4 the admission **decision** uses only quantities computable at compile time; only the
+payoff is settled afterwards. We also removed a confound present in our own first attempt: the
+certificate is a property of the analysis, not of CWC, so it can be computed for *any* fixed
+deployed plan. Granting it to every deployment separates the admission rule from the policy it
+judges. Pooled 5-collection workload, 3 budgets × 10 seeds = 30 blocks, K = 2, δ = 0.05,
+τ = 0.05 (the level E5 identifies as certifiable at this scale):
 
-We also removed a confound that was present in our first draft of this experiment: the
-certificate is a property of the *analysis*, not of CWC, so it can be computed for any fixed
-deployed plan. We therefore grant it to **every** deployment, which separates the admission
-rule from the policy it judges. Pooled 5-collection workload, 3 budgets × 10 seeds = 30
-blocks, K=2, δ=0.05, τ=0.05 — the level E5 identifies as certifiable at this scale:
-
-| Admission rule | Deployment | Admitted | Breaches among admitted | Mean utility |
+| Admission rule | Deployment | Admitted | Breaches among admitted | Utility |
 |---|---|---|---|---|
 | **certificate** | Static-SPLADE | 96.7% | **0.0%** | **0.532** |
 | **certificate** | **CWC** | 96.7% | **0.0%** | 0.496 |
@@ -165,74 +184,67 @@ blocks, K=2, δ=0.05, τ=0.05 — the level E5 identifies as certifiable at this
 | **certificate** | Static-Qwen3 | 33.3% | **0.0%** | 0.200 |
 | **certificate** | CostGreedy-cal | 26.7% | **0.0%** | 0.160 |
 | **certificate** | Static-ColBERTv2 | 0% | **0.0%** | 0.000 |
-| EB slack, shift ignored | StaticBest-cal / CostGreedy-cal / Static-Qwen3 | 76.7% | **13.0%** (3/23) | 0.300 |
-| point estimate | StaticBest-cal / CostGreedy-cal / Static-Qwen3 | 100% | **33.3%** (10/30) | 0.067 |
+| EB slack, shift ignored | StaticBest-cal / CostGreedy-cal / Static-Qwen3 | 76.7% | **13.0%** | 0.300 |
+| point estimate | StaticBest-cal / CostGreedy-cal / Static-Qwen3 | 100% | **33.3%** | 0.067 |
 | post-hoc oracle (not deployable) | StaticBest-cal | 66.7% | 0.0% | 0.400 |
 
-Three readings, including one that does not flatter us:
-
-* **The rule is sound, and provably so for every policy, not just ours.** Under the
-  certificate rule, all seven deployments breach on **0 of the windows they admit**. Under the
-  strongest prospective signal a certificate-free operator has, the three quality-seeking
-  recipes breach on 13.0% of admitted windows; under a plain point estimate, 33.3%. That gap
-  is precisely the value of the shift term, and it is invisible in a retrospective evaluation
-  — which is why the reviewer's objection to our Table VI was the right one to raise.
+* **The rule is sound for every policy, not only ours.** Under the certificate rule all seven
+  deployments breach **0 of the windows they admit**. Under the strongest prospective signal a
+  certificate-free operator has, the three quality-seeking recipes breach 13.0% of admitted
+  windows; under a plain point estimate, 33.3%. That gap is exactly the value of the shift
+  term, and a retrospective evaluation cannot see it — which is why this objection was the
+  right one to raise.
 * **Under a strict SLA the certificate is what makes a good plan bankable.** CWC's compiled
-  plan passes its own certificate on 96.7% of windows; the calibrated static plans pass on
-  26.7–33.3%, so a certified operator serving CWC earns 2.5× the utility of one serving the
-  best calibrated static plan (0.496 vs 0.200) even though that plan has the higher raw nDCG
-  (0.600 vs 0.513). Prospectively, CWC (0.496) also beats the clairvoyant post-hoc rule
-  applied to that baseline (0.400).
-* **On this workload one static operator beats us.** Static-SPLADE is both safe
-  (realized violation 0.0010) and of decent quality (0.550), so under the certificate rule it
-  earns 0.532 against CWC's 0.496. We report this rather than omit it. It is consistent with
-  the paper's scoping: on the canonical 3-collection workload SPLADE is not on the frontier
-  and CWC leads it (nDCG 0.639 vs 0.605, Table III), but on this 5-collection pool at K=2 it
-  is, and CWC's compiled choice does not dominate it. The claim we defend is that CWC is
-  reliably *certifiable at high quality*, not that it beats every operator on every workload.
+  plan passes its own certificate on 96.7% of windows against 26.7–33.3% for the calibrated
+  static plans, so a certified operator serving CWC earns 2.5× the utility of one serving the
+  best calibrated static plan (0.496 vs 0.200) despite that plan's higher raw nDCG (0.600 vs
+  0.513) — and more than the *clairvoyant* post-hoc rule applied to it (0.400).
+* **Scope, stated plainly.** On this pooled 5-collection workload at K = 2, Static-SPLADE is
+  itself safe (violation 0.0010) and of decent quality, so under the certificate rule it earns
+  0.532 against CWC's 0.496. This configuration is outside the paper's evaluation setting; on
+  the canonical 3-collection workload SPLADE is not on the frontier and CWC leads it (average
+  rank 2.51 vs 3.07, nDCG 0.641 vs 0.605, Tables III and VI). We report it because a reader of
+  the artifact would find it, and because it is the honest boundary of the claim: CWC is
+  reliably *certifiable at high quality*, not superior to every operator on every workload.
 
-One trade-off this experiment exposes and that we now state explicitly in the paper: a tight
-certificate wants few, well-populated cells, while good routing wants enough cells to separate
-the workload. At K=2 the τ=0.05 SLA is certifiable but CWC's routing is constrained
-(nDCG 0.513); at K=4 CWC recovers quality (0.580) but the certificate only supports
-τ ≈ 0.30 at this workload size. E5 quantifies the exchange rate, and it is a data-volume
-question rather than a structural one.
-
-We have replaced the paper's Table VI experiment with this one.
+This experiment also exposes a trade-off we now state explicitly: a tight certificate wants
+few, well-populated cells, while good routing wants enough cells to separate the workload. At
+K = 2 the τ = 0.05 SLA is certifiable but routing is constrained (nDCG 0.513); at K = 4 CWC
+recovers quality (0.580) while the certificate supports τ ≈ 0.30 at this workload size. E5
+quantifies the exchange rate, and it is a data-volume question rather than a structural one.
 
 ## W3 / D3 — "a bound around 0.30 is difficult to use for tight SLOs"
 
-Agreed; a bound that only beats 1.0 is a weak claim. E5 maps where the bound is actually
-usable. Writing R_cert ≈ Σ_c (m_c/M)·Γ_c·(L̂_c + ε(n_c)), it has a **floor** Γ·L̂ that no
-amount of calibration removes and a statistical term that shrinks like 1/√n_c, so two
-separate conditions must hold for an SLA level τ. Sweeping the labeled-window size on the
-pooled 5-collection workload (80 ms, observable Γ, validity 100% at every point):
+Agreed; a bound that merely beats 1.0 is a weak claim, and we now say where the bound is
+genuinely usable. Writing R_cert ≈ Σ_c (m_c/M)·Γ_c·(L̂_c + ε(n_c)), it carries a **floor**
+Γ·L̂ that no amount of calibration removes plus a statistical term shrinking like 1/√n_c, so an
+SLA level τ needs two separate conditions to hold. Sweeping the labeled-window size on the
+pooled 5-collection workload at 80 ms (observable Γ; the bound upper-bounds the realized rate
+at every point):
 
 | mean n_c per cell | 68 | 137 | 242 | 341 | 521 | 688 |
 |---|---|---|---|---|---|---|
-| R_cert (K=2, δ=0.1) | 0.368 | 0.248 | 0.101 | 0.073 | 0.052 | **0.037** |
+| R_cert (K = 2, δ = 0.1) | 0.368 | 0.248 | 0.101 | 0.073 | 0.052 | **0.037** |
 | realized violation | 0.009 | 0.005 | 0.004 | 0.003 | 0.004 | 0.003 |
 
-Reading off the SLA levels:
-
-| SLA τ | Certifiable? | Smallest configuration that reaches it |
+| SLA τ | Certifiable? | Smallest configuration reaching it |
 |---|---|---|
-| 0.20 | **yes** | n_c = 121, K=4, R_cert = 0.185 |
-| 0.10 | **yes** | n_c = 341, K=2, δ=0.05, R_cert = 0.086 |
-| **0.05** | **yes** | n_c = 688, K=2, δ=0.05, **R_cert = 0.0435** (realized 0.0031, nDCG 0.446) |
-| 0.01 | not yet | floor is only 0.0015, so it is sample-size-bound, not floor-bound; the measured 1/√n law implies n_c ≈ 12.1k |
+| 0.20 | **yes** | n_c = 121, K = 4, R_cert = 0.185 |
+| 0.10 | **yes** | n_c = 341, K = 2, δ = 0.05, R_cert = 0.086 |
+| **0.05** | **yes** | n_c = 688, K = 2, δ = 0.05, **R_cert = 0.0435** (realized 0.0031) |
+| 0.01 | not yet | floor is only 0.0015, so this is sample-size-bound, not floor-bound; the measured 1/√n law implies n_c ≈ 12.1k |
 
-So a 5% SLA is certifiable today at a workload size we actually ran, and 1% is a data-volume
+A 5% SLA is therefore certifiable at a workload size we actually ran, and 1% is a data-volume
 question with a specific answer rather than a barrier — a serving system that logs a few tens
-of thousands of labeled queries per cell reaches it. The 0.30 in the submitted paper was the
-3-collection regime (n_c ≈ 100–430), not a property of the bound.
+of thousands of labeled queries per cell reaches it. The 0.30 in the submission was the
+3-collection regime (n_c ≈ 100–430), not a property of the bound, and the paper should have
+said so.
 
 ## D4 — "add an end-to-end experiment that actually executes the selected plans"
 
-Done; see the shared answer to R1-W2 below. Nothing in E2 is replayed from cached action
-rows: every latency reported there is wall-clock time of a real execution.
+Done; see the shared answer to R1-W2 below. Nothing there is replayed from cached action rows.
 
-## W4 / writing — blurry figures, page-6 overlap
+## W4 — presentation
 
 Fixed and verified; see the shared answer at the end.
 
@@ -240,27 +252,34 @@ Fixed and verified; see the shared answer at the end.
 
 # Reviewer #1
 
-## W2 — "for a systems conference I would expect integration into a real system, with end-to-end latency and/or throughput" (also R2-D4, R3-D2)
+## W2 — "integration into a real system, with end-to-end latency and/or throughput" (also R2-D4, R3-D2)
 
-This was the most important gap and we have closed it with a full serving harness (E2). We
-build a real hybrid stack — Okapi BM25 over a sparse term-weight matrix, an hnswlib HNSW
-index over E5-base embeddings, reciprocal-rank fusion, a MiniLM cross-encoder at depth 20/50,
-and a metadata predicate placed either **pre** (constrained ANN traversal through hnswlib's
-filter callback, with the search list widened as the predicate tightens, as production
-filtered-ANN implementations do) or **post** (retrieve then drop). Every policy, CWC included,
-is executed live; CWC pays its telemetry probe and its routing decision **inside** the
+This was the most important gap and we have closed it with a full serving harness. The stack
+is real throughout: Okapi BM25 evaluated as a sparse term-weight matrix (the same scoring an
+inverted index performs), an hnswlib HNSW index over E5-base embeddings, reciprocal-rank
+fusion, a MiniLM cross-encoder at depth 20/50, and a metadata predicate placed either **pre**
+— constrained ANN traversal through hnswlib's filter callback, with the search list widened as
+the predicate tightens, as production filtered-ANN implementations do — or **post**. Every
+policy executes live, and CWC pays its telemetry probe and routing decision **inside** the
 measured path.
 
-To make the filter-placement decision realistic we search a **100,785-document union of five
-BEIR collections** (NFCorpus queries against NFCorpus + FiQA + SciFact + SciDocs + ArguAna).
-The measured plan frontier shows why placement is a genuine decision rather than a toy: at
-selectivity 1.0 pre-filtered dense search costs 0.48 ms, at selectivity 0.02 it costs
-78.6 ms — a 164× spread — while post-filtering stays at 0.46 ms and loses quality
-(nDCG 0.021 vs 0.029 at s = 0.02). SLO levels are fixed a priori as a log-spaced grid between
-the 20th and 95th percentile of the pooled measured plan latency.
+To make filter placement a real decision rather than a toy we search a **100,785-document
+union of five BEIR collections** (NFCorpus queries against NFCorpus + FiQA + SciFact + SciDocs
++ ArguAna). The measured frontier shows why the decision matters: pre-filtered dense search
+costs 0.48 ms at selectivity 1.0 and **78.6 ms at selectivity 0.02** — a 164× spread — while
+post-filtering stays at 0.45 ms and loses quality (nDCG 0.021 vs 0.029 at s = 0.02).
 
-**Closed-loop replay of the served window** (200 queries × 4 selectivities, 5 seeds, SLO grid
-fixed a priori at 10/25/50/100 ms, every number a live execution):
+The SLO grid is fixed a priori, and *relative to the measured latency distribution* rather
+than in absolute milliseconds: log-spaced between the 20th and 95th percentile of the pooled
+per-plan latency measured in that same run. We flag this deliberately. Absolute millisecond
+budgets are machine-dependent — repeating the experiment while five unrelated jobs occupied
+the CPU made every plan 20–25% slower, which moves a fixed 100 ms budget across the knee of
+the latency distribution and changes which plans are feasible. Defining the SLO by a quantile
+of the run's own measurements keeps the comparison scale-free, and it is why we report ratios
+(violation reduction, throughput gain, p95 reduction) as the headline rather than absolute
+latencies.
+
+**Closed-loop replay of the served window** (200 queries × 4 selectivities, 5 seeds):
 
 | SLO | Policy | mean ms | p95 ms | SLO violation | nDCG@10 | throughput (qps) |
 |---|---|---|---|---|---|---|
@@ -276,133 +295,123 @@ fixed a priori at 10/25/50/100 ms, every number a live execution):
 | 10 ms | CWC | 3.2 | 7.1 | 0.000 | 0.0953 | 310.8 |
 | 10 ms | StaticBest-cal | 1.6 | 3.5 | 0.000 | 0.0957 | 610.6 |
 
-At the binding SLO the result reproduces, under real execution, exactly the effect the paper
-claimed from cached rows: **CWC cuts the realized SLO-violation rate of the strongest
-calibrated static plan by 30× (20.4% → 0.7%) while delivering 75% more throughput
-(27.1 vs 15.4 qps) and 28% lower p95 latency (82.1 vs 114.4 ms), at a 3.9% nDCG cost
-(0.1013 vs 0.1054)** — a quality cost within a whisker of the ≈4% the paper reports from the
-cached-row study, obtained here by executing every plan. On the smaller NFCorpus-only stack
-the same mechanism appears as **3.6× throughput at equal-or-better quality** (137.8 vs
-38.4 qps, nDCG 0.1352 vs 0.1335 at that stack's 58.8 ms SLO).
+At the binding SLO this reproduces, under real execution, exactly the effect the paper claimed
+from cached rows: **CWC cuts the realized SLO-violation rate of the strongest calibrated static
+plan by 30× (20.4% → 0.7%) while delivering 75% more throughput (27.1 vs 15.4 qps) and 28%
+lower p95 latency (82.1 vs 114.4 ms), at a 3.9% nDCG cost** — within a whisker of the ≈4% the
+paper reports from the cached-row study, now obtained by executing every plan. On the smaller
+NFCorpus-only stack the same mechanism appears as 3.6× throughput at equal-or-better quality.
 
 **Under load.** We also drive the same stack open-loop, with Poisson arrivals into a
-single-server queue that executes every request for real, and score the SLO against the
-*response* time (queue wait + service) rather than service time alone. Measured saturation
-capacities at the 100 ms SLO are **CWC 21.2 qps**, CostGreedy-cal 18.1, StaticBest-cal 18.0,
-Static-BestQuality 12.2 — CWC sustains the highest arrival rate of the four because routing
-sends the expensive constrained-ANN and rerank plans only to the cells that need them.
-Response-time tails at three offered loads (0.5×, 0.75× and 1.0× the median policy capacity,
-i.e. 9.05, 13.6 and 18.1 qps):
+single-server queue that executes every request, scoring the SLO against *response* time
+(queue wait + service). Measured saturation capacities at the 100 ms SLO are **CWC 21.2 qps**,
+CostGreedy-cal 18.1, StaticBest-cal 18.0, Static-BestQuality 12.2 — CWC sustains the highest
+arrival rate of the four, because routing sends the expensive constrained-ANN and rerank plans
+only to the cells that need them.
 
-| Policy | p95 @ 9.05 | viol | p95 @ 13.6 | viol | p95 @ 18.1 | viol |
+| Policy | p95 @ 9.05 qps | viol | p95 @ 13.6 qps | viol | p95 @ 18.1 qps | viol |
 |---|---|---|---|---|---|---|
 | **CWC** | **175 ms** | **0.383** | **219 ms** | **0.508** | **429 ms** | **0.696** |
 | StaticBest-cal | 226 ms | 0.508 | 450 ms | 0.650 | 1074 ms | 0.942 |
 | CostGreedy-cal | 231 ms | 0.504 | 471 ms | 0.679 | 1011 ms | 0.883 |
-| Static-BestQuality | 501 ms | 0.792 | 1812 ms | 0.992 | — (saturated) | — |
+| Static-BestQuality | 501 ms | 0.792 | 1812 ms | 0.992 | saturated | — |
 
-CWC keeps the best tail and the lowest violation rate here too, and the margin *widens* with
-load: its response p95 is 22% below the strongest calibrated static plan at the lightest load,
-51% below at the middle one, and **60% below at the heaviest** (429 ms vs 1074 ms), with SLO
-violations 0.696 vs 0.942. The absolute violation rates are high for *every* policy because
-queueing delay is added to a service-time distribution that is itself heavy-tailed at low
-selectivity; that is a property of the workload, not of the selector, and it is the reason an
-operator wants an admission rule rather than only a fast plan.
+The margin **widens with load**: CWC's response p95 is 22% below the strongest calibrated
+static plan at the lightest load, 51% below at the middle one and **60% below at the heaviest**
+(429 ms vs 1074 ms). Absolute violation rates are high for every policy under open-loop
+arrivals because queueing delay compounds a service-time distribution that is heavy-tailed at
+low selectivity; that is a property of the workload, and it is precisely why an operator wants
+an admission rule rather than only a fast plan.
 
-We also report, plainly, where CWC does not pay. At 10–25 ms a single cheap plan is optimal
-for every cell, so CWC's telemetry probe (p95 4.6 ms on the 100k-document index) is pure
-overhead: 0.0953 vs 0.0957 nDCG at half the throughput. At 50 ms CWC buys +1.6% nDCG but
-introduces a 0.9% violation rate where the static plan had none. The routing layer earns its
-cost exactly when the plan frontier is cell-dependent — which is the regime the paper is about
-— and we would rather mark that boundary than average it away.
+**Where CWC does not pay**, stated rather than averaged away: at 10–25 ms a single cheap plan
+is optimal for every cell, so the telemetry probe (p95 4.6 ms on this index) is pure overhead —
+0.0953 vs 0.0957 nDCG at half the throughput. At 50 ms CWC buys +1.6% nDCG but introduces a
+0.9% violation rate where the static plan had none. The routing layer earns its cost when the
+plan frontier is cell-dependent, which is the regime the paper is about.
 
 ## W1 — "the technical novelty is ML/statistical; the systems contribution appears comparatively modest"
 
-This is a fair reading of the submitted version, in which the only systems measurement was an
-overhead micro-benchmark. We would put the systems contribution as follows, now that E2 exists
-to support it.
+That was a fair reading of a submission whose only systems measurement was an overhead
+micro-benchmark. With the evaluation above in place we would put the contribution this way.
 
-The contribution is a **query-optimizer design point**: choosing the *workload window*, rather
-than the query or the whole deployment, as the unit at which a physical plan is bound, and
-making that binding auditable before it serves traffic. Three consequences are specific to
-systems rather than to statistics: (i) the unit choice is what makes the guarantee cheap —
-because the serving window's cell masses are observed exactly, only K within-cell expectations
-carry statistical risk instead of one term per query (Proposition 3), which is why the bound is
-usable at all; (ii) the mechanism is an *abstain-to-fallback* rule in the plan space, i.e. a
-compiler decision, not a post-hoc calibration; and (iii) the payoff is measured in serving
-terms — violations eliminated, throughput raised 40%, p95 cut 13% on a 100k-document index.
-The statistical machinery we use (change of measure, empirical Bernstein) is deliberately
-standard; we claim the design point and the system that makes it operational, not a new
-concentration inequality. We have rewritten the contribution list to say this directly instead
-of leading with the certificate.
+The contribution is a **query-optimizer design point**: binding a physical plan at the
+granularity of a *workload window*, and making that binding auditable before it serves
+traffic. Three consequences are systems consequences rather than statistical ones.
+**(i) The unit choice is what makes the guarantee affordable.** Because the serving window's
+cell masses are observed exactly, only K within-cell expectations carry statistical risk;
+a per-query certifier pays log M in its radius instead of log K, and a distributional one pays
+a mass-deviation term governed by window size that does not vanish with more calibration data
+(Proposition 3). **(ii) The mechanism is a compiler decision** — abstain to a feasibility-best
+fallback in plan space — not a post-hoc recalibration of a score. **(iii) The payoff is
+measured in serving terms**: violations eliminated, throughput up 75%, p95 down 28%, capacity
+up 18%, on a 100k-document index. The statistical machinery is deliberately textbook (change
+of measure, empirical Bernstein) and we claim no new inequality; we claim the design point and
+the system that makes it operational. We have rewritten the contribution list to say this
+directly instead of leading with the certificate.
 
-## W3 — "the paper appears put together in a hurry: sections don't link, figures unreferenced, unclear provenance of numbers"
+## W3 — "the paper appears put together in a hurry"
 
-Accepted without reservation. Every item in D1–D14 is implemented in
-`rebuttal/paper_revision_preview/`, applied by a script that fails loudly if an anchor is
-missing (`rebuttal/apply_presentation_fixes.py`, 24 edits), and the result compiles cleanly at
-14 pages against the submitted 13. The extra page is the added provenance, terminology and
-baseline-definition text (D6, D7, D11) together with the enlarged figures; the added text
-alone still fits in 13. We will absorb it in the camera-ready by moving the two pilot-ablation
-panels of Figure 3 to the artifact, which the enlargement makes natural, and we have already
-removed one summary sentence that restated its own paragraph.
+Accepted without reservation. Every item of D1–D14 is implemented in
+`rebuttal/paper_revision_preview/`, applied by a script that fails loudly if an anchor string
+is missing (`rebuttal/apply_presentation_fixes.py`, 24 edits keyed to reviewer items), and the
+revision compiles cleanly.
 
-| Item | What we changed |
+| Item | What changed |
 |---|---|
-| **D1** | The production-stack sentence now carries citations (BM25, E5, SPLADE, ColBERTv2, RRF, RankZephyr) and states explicitly that it describes the operator menu the literature and current vector engines expose *in general*, not one deployment; it points to the action catalog we actually execute (Table II). |
-| **D2** | The forward reference is gone: "it adds an abstain rule and a deployment certificate, both developed later in the paper." |
+| **D1** | The production-stack sentence now carries citations (BM25, E5, SPLADE, ColBERTv2, RRF, RankZephyr) and states explicitly that it describes the operator menu the literature and current vector engines expose *in general*, not one deployment; it points to the catalog we actually execute (Table II). |
+| **D2** | Forward reference removed: "it adds an abstain rule and a deployment certificate, both developed later in the paper." |
 | **D3** | Now "three axes that are important to take into account". |
 | **D4** | Rewritten: "the BEIR benchmark systematized the zero-shot evaluation of retrieval models; its metrics, however, score ranking quality alone and say nothing about deployability under a latency SLO." |
-| **D5** | The notation list now defines W: telemetry is computed in the context of the window W ∈ {W_tr, W_ev} containing the query, which enters only through window-level statistics such as filter survival. |
-| **D6** | You are right that our use of "telemetry" was broader than the systems convention. We now split it explicitly: (i) quantities computed or estimated up front (query features, filter-survival estimates, cheap probe outputs) and (ii) quantities genuinely observed from execution (latency), available for the labeled historical window but never for the window being compiled — and we state that compiling the incoming window uses (i) on that window plus (i)–(ii) on history only. |
-| **D7** | Baselines are introduced by the information each may use, with acronyms expanded: QueryOnly-**RF** (random forest on query-side features only), ScalarTelemetry-RF, CostGreedy-**cal** (calibrated p95 fits the budget), StaticBest-cal; "SOTA" is defined as the four published operators of Table II used as static plans. |
-| **D8** | We added the rationale you asked for: the pilot ran first chronologically and motivated the design, but is reported second because it uses one collection and a local catalog and is the weaker evidence — with an explicit invitation to read it first. |
-| **D9** | Diagnosed: IEEEtran numbers `\paragraph` as "a)", so a single run-in heading produced a stray enumerator. All run-in headings now use an unnumbered macro; there is no "a)" anywhere. |
-| **D10** | Table III *is* referenced ("Table III reports…" in §VII-A), but it lands a page from its reference and is easy to miss — a real readability problem. We made the pointer explicit and the float placement tighter. |
-| **D11** | Both sets of numbers now carry their setup inline: the violation rates are named as the two entries of Table IV at the 80 ms budget with K=4 averaged over five seeds, with no other configuration pooled in; the latency numbers are stated as wall-clock means over the 323 NFCorpus test queries, measured with `time.perf_counter` on the single RTX 4090 of §VI after a five-query warm-up with all indexes resident. |
+| **D5** | The notation list defines W: telemetry is computed in the context of the window W ∈ {W_tr, W_ev} containing the query, which enters only through window-level statistics such as filter survival. |
+| **D6** | You are right that our "telemetry" was broader than the systems convention. We now split it: (i) quantities computed or estimated up front — query features, filter-survival estimates, cheap probe outputs — and (ii) quantities genuinely observed from execution, such as latency, available for the labeled historical window but never for the window being compiled; and we state that compiling the incoming window uses (i) on that window plus (i)–(ii) on history only. |
+| **D7** | Baselines are introduced by the information each may use, acronyms expanded: QueryOnly-**RF** (random forest on query-side features only), ScalarTelemetry-RF, CostGreedy-**cal** (calibrated p95 fits the budget), StaticBest-cal; "SOTA" is defined as the four published operators of Table II used as static plans. |
+| **D8** | The rationale is now stated: the pilot ran first chronologically and motivated the design, but is reported second because it uses one collection and a local catalog and is the weaker evidence — with an explicit invitation to read it first. |
+| **D9** | Diagnosed: IEEEtran numbers `\paragraph` as "a)", so a single run-in heading produced a stray enumerator. All run-in headings now use an unnumbered macro; no "a)" appears anywhere. |
+| **D10** | Table III *is* referenced in §VII-A, but it lands a page from its pointer and is easy to miss — a real readability problem, which we treated as such by making the pointer explicit and tightening float placement. |
+| **D11** | Both sets of numbers now carry their setup inline: the violation rates are named as the two entries of Table IV at 80 ms with K = 4 over five seeds, with nothing else pooled in; the latencies are stated as wall-clock means over the 323 NFCorpus test queries, measured with `time.perf_counter` on the single RTX 4090 of §VI after a five-query warm-up with all indexes resident. |
 | **D12** | Correct — Table VI had no reference at all. It is now referenced where its numbers are discussed. |
-| **D13** | "Feature families and controls." is now its own paragraph with a proper run-in heading. |
+| **D13** | "Feature families and controls." is its own paragraph with a proper run-in heading. |
 | **D14** | Figures 3b, 3c and 3d are each referenced at the sentence that discusses them. |
 
 ## Inclusive writing / figure legibility (also R2-W4, R3-D3, R3-D4)
 
-* **Figure 3 was genuinely illegible in print** — a 7.2-inch canvas with 5.2–7.5 pt type was
-  included at 0.50\textwidth, so labels rendered at roughly 2.6–3.7 pt. We regenerated it:
-  base type 6.7 → 9 pt, every explicit font size ×1.42, and the 2×2 block reflowed to a 1×4
-  strip so it can be included at the **full two-column width** — labels now render at ~9 pt,
-  and because the strip is shorter the enlargement costs no page.
-* **Figure 1** is enlarged from 0.84 to 0.95\textwidth, which raises the subscript size you
-  flagged by the same factor.
+* **Figure 3 was genuinely illegible in print.** A 7.2-inch canvas carrying 5.2–7.5 pt type was
+  included at 0.50\textwidth, so labels rendered at roughly 2.6–3.7 pt. We regenerated it with
+  base type raised 6.7 → 9 pt, every explicit font size ×1.42, and a compressed canvas, and
+  enlarged the include to 0.86\textwidth; labels now render at about 7.5–9 pt.
+* **Figure 1** is enlarged from 0.84 to 0.95\textwidth, raising the subscripts you flagged by
+  the same factor.
 * **The §V-C overlap on page 6** was a `description` list whose long `\textsc` labels overran
-  the IEEEtran column and collided with the body text. It is now a run-in itemized list; the
-  rendered page is included in the preview and the collision is gone.
+  the IEEEtran column and collided with the body text. It is now a run-in itemized list, and
+  the rendered page in the preview shows the collision gone.
 
-## Availability
-
-Thank you for confirming the disclosure statement. The repository is now a complete release
-rather than the partial one described in the submission (see the shared note below).
+The revision is 14 pages against the submitted 13. The extra page is the added provenance,
+terminology and baseline-definition text (D6, D7, D11) together with the enlarged figures; the
+added text alone still fits in 13. We will absorb it in the camera-ready by moving the two
+pilot-ablation panels of Figure 3 into the artifact, and we have already removed one summary
+sentence that restated its own paragraph.
 
 ---
 
 # Reviewer #3
 
-## Weak point 1 — "the formulation is rigorous but may be hard to parse for readers outside this subfield"
+## "The formulation is rigorous but may be hard to parse for readers outside this subfield"
 
 We took this together with R1-D5/D6/D7. The notation list now defines the window argument,
 "telemetry" is split into computed-up-front versus observed quantities, and every baseline is
 introduced by the information it is allowed to use with its acronym expanded at first use. The
-certification contract on page 6 — three labels distinguishing what is theorem-valid, what is
+certification contract on page 6 — the three labels separating what is theorem-valid, what is
 an empirical upper bound, and what is model-based — is also the passage whose formatting had
 collapsed, which will not have helped; it now renders correctly.
 
 ## D1 — "back the motivation with numbers: how do selectivity and budget change with the query mix, and what is the impact?"
 
-Agreed — the introduction asserted brittleness without measuring it. E6 measures it. We sweep
-the amount of workload-mix drift between the labeled and served window (d = 0 is the i.i.d.
-control; larger d skews the served window toward the expensive stratum) and record what each
-fixed recipe does, at the 80 ms budget over 5 seeds:
+Agreed — the introduction asserted brittleness without measuring it. We now measure it. We
+sweep the amount of workload-mix drift between the labeled and served window (d = 0 is the
+i.i.d. control; larger d skews the served window toward the expensive stratum) and record what
+each fixed recipe does at the 80 ms budget over 5 seeds:
 
-| Policy | SLO violation, no drift → max drift | p95 latency ratio | throughput ratio | nDCG@10 at max drift |
+| Policy | SLO violation, no drift → max drift | p95 ratio | throughput ratio | nDCG@10 at max drift |
 |---|---|---|---|---|
 | StaticBest-cal (calibrated fixed plan) | 0.0002 → **0.1245** | **3.04×** | **0.37×** | 0.642 |
 | Fixed-rerank@100 | 0.102 → 0.155 | 1.07× | 0.88× | 0.530 |
@@ -412,68 +421,72 @@ fixed recipe does, at the 80 ms budget over 5 seeds:
 | Dense-only | 0.000 → 0.000 | 1.06× | 0.80× | 0.533 |
 | BM25-only | 0.000 → 0.000 | 1.09× | 0.79× | 0.407 |
 
-This gives the introduction the concrete statement it was missing, and a more precise claim
-than "fixed recipes are brittle": **the fixed recipes that pursue quality degrade sharply — a
-plan calibrated on yesterday's window sees its SLO violation rise from 0.02% to 12.4%, its p95
-latency triple and its throughput fall to 37% as the mix shifts — while the fixed recipes that
-stay safe do so by giving up 7 to 20 nDCG points (Dense-only 0.533, BM25-only 0.407 against
-CWC's 0.604).** CWC is the only policy in the pool that holds both ends: 1.0% violation at
-0.604 nDCG. We have rewritten the motivating paragraph around these numbers.
+This yields a sharper claim than "fixed recipes are brittle": **the fixed recipes that pursue
+quality degrade sharply — a plan calibrated on yesterday's window sees its SLO violation rise
+from 0.02% to 12.4%, its p95 latency triple and its throughput fall to 37% as the mix shifts —
+while the fixed recipes that stay safe do so by giving up 7 to 20 nDCG points** (Dense-only
+0.533, BM25-only 0.407 against CWC's 0.604). CWC is the only policy in the pool that holds both
+ends: 1.0% violation at 0.604 nDCG. The motivating paragraph is rewritten around these numbers.
 
 ## D2 — "a more end-to-end result: how does plan choice translate into throughput or latency?"
 
-This is the same request as R1-W2 and R2-D4, and it is now answered with live execution rather
-than cached rows. The short version, on a real 100,785-document hybrid stack at a 99.9 ms SLO:
-CWC serves the window with **zero** SLO violations against 13.4% for the strongest calibrated
-static plan, at **40% higher throughput** (30.5 vs 21.8 qps) and **13% lower p95 latency**
-(83.8 vs 96.8 ms), with quality unchanged (nDCG 0.1040 vs 0.1044). The full table, the
-open-loop Poisson load test, and the honest tight-SLO regime where CWC's probe is pure
-overhead are in the answer to R1-W2 above.
+Same request as R1-W2 and R2-D4, now answered with live execution. On a real 100,785-document
+hybrid stack at a 100 ms SLO, CWC serves the window with 0.7% SLO violations against 20.4% for
+the strongest calibrated static plan, at **75% higher throughput** (27.1 vs 15.4 qps) and **28%
+lower p95 latency** (82.1 vs 114.4 ms), for a 3.9% nDCG cost; its saturation capacity is 21.2
+qps against 18.0, and its response-time p95 under load is up to 60% lower. The full tables, the
+open-loop load test, and the tight-SLO regime where CWC's probe is pure overhead are in the
+answer to R1-W2.
 
 ## D3 — formatting issue on page 6
 
-Diagnosed and fixed: a `description` list whose long small-caps labels overran the column.
-See the rendered page in the preview.
+Diagnosed and fixed: a `description` list whose long small-caps labels overran the column. The
+rendered page is in the preview.
 
 ## D4 — "Figures 1 and 3 are too small and hence not legible"
 
-Fixed by regenerating Figure 3 at 9 pt base type in a full-width 1×4 layout and enlarging
-Figure 1; details in the shared answer under Reviewer #1.
+Fixed by regenerating Figure 3 at 9 pt base type and enlarging both figures; details under
+Reviewer #1.
 
 ## Availability — "couldn't access the provided repo link"
 
-We are sorry about this, and it is the one point where we cannot fully reconstruct what
-happened; the repository at `https://github.com/asdasfaffq/cwc` (the URL printed in the paper)
-is public and we have re-verified anonymous access. Independently of the cause, the release
-was also *partial* by design at submission time, which was the wrong call. It is now complete:
-the full operator-execution and action-row generation pipeline, the external-ranking import,
-the multi-dataset sweeps, every script behind every number in the paper, all six new
-experiments above with their raw outputs, the regenerated figures, and the compressed
-action-row artifacts (3.6 MB) that let a reader reproduce every table without a GPU. We would
-be glad to provide a mirror if access fails again.
+We are sorry, and this is the one point we cannot fully reconstruct: the repository at the URL
+printed in the paper is public and we have re-verified anonymous access. Independently of the
+cause, the release was also *partial* by design at submission time, which was the wrong call.
+It is now complete: the full operator-execution and action-row generation pipeline, the
+external-ranking import, the multi-dataset sweeps, every script behind every number in the
+paper, all six experiments above with their raw outputs, the serving harness, the regenerated
+figures, the compiled revision, and compressed action rows (3.6 MB) that reproduce every table
+without a GPU. We are glad to provide a mirror if access fails again.
 
 ---
 
-# Shared note on the artifact
+# Changes to the manuscript
 
-`https://github.com/asdasfaffq/cwc` now contains:
+1. Proposition 2's implementation now matches its statement; the fallback and the abstain
+   decision are both selection-split functions. The union-bound variant is documented as an
+   alternative.
+2. Γ is computed on an operator-declared observable coarsening, not estimated; the
+   exchangeability assumption is stated, tested, and the test is part of the released tooling.
+   The plug-in headline is withdrawn.
+3. §VII-D (admission control) is replaced by the prospective experiment, with the certificate
+   granted to every deployment.
+4. A new end-to-end serving section: live execution on a 100k-document hybrid stack, service
+   and tail latency, throughput, saturation capacity, and an open-loop load test.
+5. A tightness map replacing the single loose number, with the SLA levels the certificate
+   supports and the calibration size each needs.
+6. The introduction's brittleness claim is replaced by measured drift numbers.
+7. The contribution list leads with the query-optimizer design point rather than the
+   certificate.
+8. All fourteen editorial items, the page-6 formatting fault, and both figures.
 
-```
-scripts/            full pipeline (generation, import, merge, compile, certify, all gates)
-paretoprobe/        retrieval/evaluation library used by the pipeline
-rebuttal/scripts/   E1-E6, the six experiments run for this response
-rebuttal/results/   every raw CSV/JSON behind every number in this response
-rebuttal/figures_legible/       regenerated Figure 3 (+ per-panel source data)
-rebuttal/paper_revision_preview/ the manuscript with all editorial fixes, compiled
-rebuttal/apply_presentation_fixes.py  the 24 edits, each keyed to a reviewer item
-artifacts/          compressed action rows (3 and 5 collections) — reproduce tables CPU-only
-```
+# Two corrections to our own claims
 
-Two corrections we made to our own claims while preparing this response, which we would
-rather state than leave for a reader to find:
+We would rather state these than leave them for a reader of the artifact to find.
 
 1. The released `certified_window_compiler.py` did not implement the policy Proposition 2
-   describes (Reviewer #2). Repaired; the headline bound is unchanged.
+   describes — in two places, one of which no review raised. Repaired; the headline bound is
+   unchanged.
 2. Our plug-in Γ̂ was not a conservative estimate of the shift budget it stood for; on the
-   observable coarsening it fell short by up to 3.95×. We replaced it with the measured
+   observable coarsening it fell short by up to 3.95×. It is replaced by the measured
    quantity, which is 5% wider and carries no unverifiable magnitude assumption.
